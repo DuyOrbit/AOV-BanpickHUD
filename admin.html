@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AOV HUD Admin - PRO CONTROL</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { background: #111; color: #fff; padding: 20px; overflow-y: auto; height: auto; width: auto; display: block; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .admin-section { background: #222; padding: 15px; border-radius: 8px; border: 1px solid #333; margin-bottom: 20px; }
+        .phase-header { background: #333; padding: 10px; border-radius: 4px; text-align: center; border-bottom: 4px solid #ffcc00; margin-bottom: 20px; font-size: 20px; font-weight: 900; letter-spacing: 2px; }
+        .player-controls { display: flex; gap: 5px; align-items: flex-start; }
+        .p-slot {
+              border: 1px solid #444; background: #222; text-align: center; border-radius: 4px; padding: 5px; width: 140px; cursor: pointer; transition: 0.3s;
+              position: relative;
+          }
+          .p-slot.active { border: 2px solid #ffcc00; }
+        .p-slot.drag-over { border-color: #ffcc00; transform: scale(1.05); box-shadow: 0 0 15px rgba(255, 204, 0, 0.5); border-width: 2px; }
+        .p-slot img { width: 100%; height: 90px; object-fit: cover; border-radius: 2px; pointer-events: none; }
+        .p-name { font-size: 11px; font-weight: bold; margin-top: 3px; display: block; overflow: hidden; white-space: nowrap; color: #ffcc00; }
+        input[type="text"] { font-size: 14px; padding: 4px; background: #333; color: #fff; border: 1px solid #555; border-radius: 2px; }
+        
+        .team-row { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; background: #1a1a1a; padding: 10px; border-radius: 8px; border-left: 5px solid #444; }
+        .team-row.t1 { border-left-color: #007bff; }
+        .team-row.t2 { border-left-color: #ff3e3e; }
+        .team-label { min-width: 80px; font-weight: 900; font-size: 14px; }
+        .bans-mini { display: flex; gap: 8px; border-left: 2px dashed #555; padding-left: 15px; margin-left: 5px; align-items: flex-start; }
+        .ban-slot-mini { width: 120px; border-color: rgba(255, 204, 0, 0.4); background: #1c1c1c; }
+        .ban-slot-mini .img-box { height: 90px !important; }
+        .ban-slot-mini .p-name { color: #ffcc00; font-size: 11px; font-weight: 900; }
+        
+        .hero-search-bar { width: 100%; padding: 12px; background: #333; color: #fff; border: 1px solid #555; border-radius: 4px; font-size: 16px; margin-bottom: 10px; }
+        .global-tools { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; background: #222; padding: 10px; border-radius: 8px; }
+        button { padding: 6px 15px; background: #444; color: #fff; border: 1px solid #666; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: all 0.2s; }
+        button:hover { background: #555; transform: translateY(-1px); }
+        button.reset { background: #600; }
+        button.reset:hover { background: #800; }
+        button.win-btn { background: #28a745; min-width: 120px; font-size: 14px; }
+        button.swap-btn { background: #6f42c1; }
+        
+        .setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .team-setup-box { background: #2a2a2a; padding: 15px; border-radius: 8px; border: 1px solid #444; }
+        .player-name-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-top: 10px; }
+        .logo-preview { width: 50px; height: 50px; border: 1px solid #555; background: #000; object-fit: contain; }
+
+        .hero-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-top: 10px; max-height: 400px; overflow-y: auto; padding: 10px; background: #000; border-radius: 4px; }
+        .grid-item { position: relative; background: #1a1a1a; padding: 5px; border-radius: 4px; text-align: center; cursor: pointer; border: 1px solid #333; transition: all 0.2s; }
+        .grid-item:hover { transform: scale(1.05); border-color: #ffcc00; }
+        .grid-item img { width: 100%; height: 80px; object-fit: cover; border-radius: 2px; margin-bottom: 5px; }
+        .grid-item span { font-size: 10px; color: #aaa; display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+        .grid-item.used-current, .grid-item.used-global {
+            opacity: 0.25;
+            filter: grayscale(100%);
+            pointer-events: none;
+            border-color: #600;
+        }
+        .grid-item.used-current::after, .grid-item.used-global::after {
+            position: absolute;
+            top: 40%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(220, 53, 69, 0.95);
+            color: #fff;
+            font-size: 9px;
+            font-weight: 900;
+            padding: 2px 6px;
+            border-radius: 3px;
+            letter-spacing: 1px;
+            white-space: nowrap;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.8);
+        }
+        .grid-item.used-current::after { content: "ĐÃ CHỌN/CẤM"; }
+        .grid-item.used-global::after { content: "GLOBAL BAN"; background: rgba(111, 66, 193, 0.95); }
+        .grid-item.used-prev-info::before {
+            content: attr(data-prev-label);
+            position: absolute;
+            top: 4px; right: 4px;
+            background: rgba(111, 66, 193, 0.9);
+            color: #fff;
+            font-size: 8px;
+            font-weight: 900;
+            padding: 1px 4px;
+            border-radius: 3px;
+            z-index: 5;
+            border: 1px solid #ffcc00;
+            pointer-events: none;
+        }
+        .gban-history-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #333; }
+        .gban-team-box { background: #181818; border: 1px solid #333; border-radius: 6px; padding: 10px; }
+        .gban-game-row { display: flex; align-items: center; gap: 6px; background: #222; padding: 5px 8px; border-radius: 4px; margin-top: 6px; flex-wrap: wrap; }
+        .gban-hero-chip { display: inline-flex; align-items: center; gap: 4px; background: #111; border: 1px solid #555; border-radius: 3px; padding: 2px 5px; font-size: 10px; }
+        .gban-hero-chip img { width: 22px; height: 22px; object-fit: cover; border-radius: 2px; }
+        .gban-hero-chip button { padding: 0 4px; font-size: 9px; background: #700; border: none; color: #fff; border-radius: 2px; }
+        .score-adj-btn { padding: 2px 8px; font-size: 13px; background: #333; border: 1px solid #555; color: #fff; border-radius: 4px; }
+
+        /* PREVIEW FRAME STYLE (RECTANGLE 1.8:1) */
+        .tuning-preview-main {
+            width: 250px; height: 140px;
+            background: #000;
+            border: 2px solid #ffcc00;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 15px rgba(0,0,0,1);
+        }
+        .tuning-preview-hero { position: absolute; inset:0; width:100%; height:100%; opacity: 0.3; object-fit: cover; }
+        .tuning-preview-photo { position: absolute; inset:0; width:100%; height:100%; object-fit: cover; z-index: 2; transition: all 0.05s ease-out; }
+        
+        /* VERTICAL REVEAL PREVIEW */
+        .tuning-preview-reveal {
+            width: 130px; height: 185px; /* Vertical ratio 280:400 */
+            background: #000;
+            border: 2px solid #6f42c1;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 15px rgba(0,0,0,1);
+        }
+
+        .setup-box { background: #1a1a1a; padding: 10px; border-radius: 4px; display: flex; flex-direction: column; gap: 5px; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+        .setup-box label { font-size: 10px; color: #888; display: flex; align-items: center; gap: 5px; }
+        .setup-box input[type="range"] { flex: 1; height: 4px; cursor: pointer; outline: none; }
+    </style>
+</head>
+<body>
+    <div class="phase-header" id="current-phase-display">READY TO START</div>
+
+    <!-- HUD & Audio Controls -->
+    <div class="admin-section">
+        <h3 style="margin-bottom:15px; color:#ffcc00">BROADCAST & REVEAL</h3>
+        <div style="display:flex; gap:10px; flex-wrap: wrap; align-items: center;">
+            <button class="win-btn" onclick="controlHUD(true, true)" style="background: #28a745;">✨ HIỆN HUD + NHẠC</button>
+            <button class="win-btn" onclick="controlHUD(false, null)" style="background: #ffc107; color: #000;">🌑 ẨN HUD</button>
+            <button class="win-btn" onclick="controlMusic(false)" style="background: #dc3545;">🔇 DỪNG NHẠC</button>
+            <div style="width: 2px; height: 30px; background: #444; margin: 0 10px;"></div>
+            <button class="win-btn" onclick="controlReveal('players')" style="background: #6f42c1;">🎬 BẮT ĐẦU REVEAL</button>
+            <button class="win-btn" onclick="controlReveal('split')" style="background: #007bff;">🎮 MỞ IN-GAME</button>
+            <button class="win-btn" onclick="controlReveal('hidden')" style="background: #dc3545;">📴 TẮT IN-GAME</button>
+            <div style="width: 2px; height: 30px; background: #444; margin: 0 10px;"></div>
+            <button id="combat-btn" class="win-btn" onclick="toggleCombatCams()" style="background: #28a745;">👁️ CAM: ON</button>
+            <div style="width: 2px; height: 30px; background: #444; margin: 0 10px;"></div>
+            <button id="victory-t1-btn" class="win-btn" onclick="toggleVictoryCam(1)" style="background: #007bff; border-color: #00d2ff; font-weight: 900;" title="Hiện thanh 5 webcam/ảnh của Team 1 khi sắp thắng">🏆 5-CAM T1 GẦN THẮNG</button>
+            <button id="victory-t2-btn" class="win-btn" onclick="toggleVictoryCam(2)" style="background: #dc3545; border-color: #ff3e3e; font-weight: 900;" title="Hiện thanh 5 webcam/ảnh của Team 2 khi sắp thắng">🏆 5-CAM T2 GẦN THẮNG</button>
+            <button id="victory-off-btn" class="win-btn" onclick="toggleVictoryCam(0)" style="background: #333; color: #ccc;" title="Đóng thanh 5 webcam">❌ ĐÓNG 5-CAM</button>
+            <div style="flex:1"></div>
+            <div style="font-size: 11px; color: #aaa;">
+                HUD: <span id="hud-status" style="color:#f00">HIDDEN</span> |
+                IN-GAME: <span id="ingame-status" style="color:#aaa">OFF</span> |
+                5-CAM: <span id="victory-status" style="color:#aaa">OFF</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Match Series Controls -->
+    <div class="admin-section">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:8px;">
+            <h3 style="margin:0; color:#ffcc00">SERIES CONTROL & GLOBAL BAN PICK</h3>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button onclick="recordCurrentPicksToHistory()" style="background:#6f42c1; border-color:#8a63d2; font-size:11px; font-weight:bold;">+ LƯU TƯỚNG VÁN NÀY VÀO GLOBAL BAN</button>
+                <button onclick="clearSeriesHistory()" style="background:#d97706; border-color:#f59e0b; color:#fff; font-size:11px; font-weight:bold;">🔄 RESET TỈ SỐ & GLOBAL BAN (0-0)</button>
+                <button onclick="resetAllForNewMatch()" style="background:#dc2626; border-color:#ef4444; color:#fff; font-size:11px; font-weight:900;">🆕 TRẬN MỚI (RESET TOÀN BỘ 100%)</button>
+            </div>
+        </div>
+        <div style="display:flex; justify-content: space-between; align-items: center;">
+            <div style="text-align:center">
+                <button class="win-btn" onclick="matchWin(1)">TEAM 1 WIN</button>
+            </div>
+            <div style="display:flex; gap:14px; align-items:center">
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <button class="score-adj-btn" onclick="adjustScore(1, -1)" title="Giảm điểm Team 1">-</button>
+                    <span id="score-t1" style="font-size: 26px; font-weight: 900; color:#ffcc00; min-width:24px; text-align:center;">0</span>
+                    <button class="score-adj-btn" onclick="adjustScore(1, 1)" title="Tăng điểm Team 1">+</button>
+                </div>
+                <span style="font-size: 24px; font-weight: 900; color:#ffcc00">-</span>
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <button class="score-adj-btn" onclick="adjustScore(2, -1)" title="Giảm điểm Team 2">-</button>
+                    <span id="score-t2" style="font-size: 26px; font-weight: 900; color:#ffcc00; min-width:24px; text-align:center;">0</span>
+                    <button class="score-adj-btn" onclick="adjustScore(2, 1)" title="Tăng điểm Team 2">+</button>
+                </div>
+                <button class="swap-btn" onclick="swapSidesPrompt()" style="margin-left:8px;">🔄 ĐỔI BÊN</button>
+            </div>
+            <div style="text-align:center">
+                <button class="win-btn" onclick="matchWin(2)">TEAM 2 WIN</button>
+            </div>
+        </div>
+        <div class="gban-history-grid" id="global-ban-history-panel">
+            <div class="gban-team-box" style="border-left: 3px solid #007bff;">
+                <div style="font-size:11px; font-weight:900; color:#00a2ff;" id="gban-title-t1">TƯỚNG ĐÃ CHỌN - TEAM 1</div>
+                <div id="gban-list-t1" style="font-size:11px; color:#777; margin-top:4px;">Chưa có tướng ván trước</div>
+            </div>
+            <div class="gban-team-box" style="border-left: 3px solid #ff3e3e;">
+                <div style="font-size:11px; font-weight:900; color:#ff5e5e;" id="gban-title-t2">TƯỚNG ĐÃ CHỌN - TEAM 2</div>
+                <div id="gban-list-t2" style="font-size:11px; color:#777; margin-top:4px;">Chưa có tướng ván trước</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-section">
+        <h3 style="margin-bottom:15px; color:#ffcc00">PLAYER PHOTOS</h3>
+        <div class="setup-grid">
+            <div class="team-setup-box" style="border-top: 4px solid #007bff;">
+                <h4 style="font-size:12px; margin-bottom:10px">TEAM 1 PHOTOS</h4>
+                <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:5px" id="p-photos-t1">
+                </div>
+            </div>
+            <div class="team-setup-box" style="border-top: 4px solid #ff3e3e;">
+                <h4 style="font-size:12px; margin-bottom:10px">TEAM 2 PHOTOS</h4>
+                <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:5px" id="p-photos-t2">
+                </div>
+            </div>
+        </div>
+    <!-- IN-GAME TUNING (HORIZONTAL) -->
+    <div class="admin-section">
+        <h3 style="margin-bottom:15px; color:#ffcc00">IN-GAME PHOTO TUNING (KHUNG NGANG) - LIVE</h3>
+        <div style="display:flex; gap:15px; align-items: center; background: #1a1a1a; padding: 15px; border-radius: 8px;">
+            <div class="tuning-preview-main">
+                <img id="prev-tune-hero" class="tuning-preview-hero" src="">
+                <img id="prev-tune-photo" class="tuning-preview-photo" src="">
+            </div>
+            <div style="flex:1">
+                <label style="font-size:12px; color:#aaa; margin-bottom:5px; display:block">CHỌN TUYỂN THỦ</label>
+                <select id="tune-player-select" onchange="loadPlayerTuning()" style="width:100%; padding:8px; background:#333; color:#fff; border:1px solid #555;">
+                    <option value="t1_p0">TEAM 1 - PLAYER 1</option>
+                    <option value="t1_p1">TEAM 1 - PLAYER 2</option>
+                    <option value="t1_p2">TEAM 1 - PLAYER 3</option>
+                    <option value="t1_p3">TEAM 1 - PLAYER 4</option>
+                    <option value="t1_p4">TEAM 1 - PLAYER 5</option>
+                    <option value="t2_p0">TEAM 2 - PLAYER 1</option>
+                    <option value="t2_p1">TEAM 2 - PLAYER 2</option>
+                    <option value="t2_p2">TEAM 2 - PLAYER 3</option>
+                    <option value="t2_p3">TEAM 2 - PLAYER 4</option>
+                    <option value="t2_p4">TEAM 2 - PLAYER 5</option>
+                </select>
+                <div style="font-size:10px; color:#666; margin-top:10px">* Dùng cho Camera trong trận</div>
+            </div>
+            <div style="flex:1" class="setup-box">
+                <label>ZOOM <span id="val-zoom">100</span>%</label>
+                <input type="range" id="tune-zoom" min="50" max="300" value="100" oninput="updateTuningValues()">
+            </div>
+            <div style="flex:1" class="setup-box">
+                <label>OFFSET X <span id="val-offx">50</span>%</label>
+                <input type="range" id="tune-offx" min="0" max="100" value="50" oninput="updateTuningValues()">
+            </div>
+            <div style="flex:1" class="setup-box">
+                <label>OFFSET Y <span id="val-offy">50</span>%</label>
+                <input type="range" id="tune-offy" min="0" max="100" value="50" oninput="updateTuningValues()">
+            </div>
+            <button id="save-tuning-btn" class="win-btn" onclick="applyPlayerTuning()" style="background: #ffcc00; color: #000; height: 45px; margin-top:15px; min-width: 120px;">💾 LƯU IN-GAME</button>
+        </div>
+    </div>
+
+    <!-- REVEAL TUNING (VERTICAL) -->
+    <div class="admin-section">
+        <h3 style="margin-bottom:15px; color:#6f42c1">REVEAL PHOTO TUNING (KHUNG DỌC) - LIVE</h3>
+        <div style="display:flex; gap:15px; align-items: center; background: #1a1a1a; padding: 15px; border-radius: 8px;">
+            <div class="tuning-preview-reveal">
+                <img id="prev-tune-hero-rev" class="tuning-preview-hero" src="">
+                <img id="prev-tune-photo-rev" class="tuning-preview-photo" src="">
+            </div>
+            <div style="flex:1">
+                <label style="font-size:12px; color:#aaa; margin-bottom:5px; display:block">CHỌN TUYỂN THỦ</label>
+                <select id="tune-player-select-rev" onchange="loadPlayerTuningReveal()" style="width:100%; padding:8px; background:#333; color:#fff; border:1px solid #555;">
+                    <option value="t1_p0">TEAM 1 - PLAYER 1</option>
+                    <option value="t1_p1">TEAM 1 - PLAYER 2</option>
+                    <option value="t1_p2">TEAM 1 - PLAYER 3</option>
+                    <option value="t1_p3">TEAM 1 - PLAYER 4</option>
+                    <option value="t1_p4">TEAM 1 - PLAYER 5</option>
+                    <option value="t2_p0">TEAM 2 - PLAYER 1</option>
+                    <option value="t2_p1">TEAM 2 - PLAYER 2</option>
+                    <option value="t2_p2">TEAM 2 - PLAYER 3</option>
+                    <option value="t2_p3">TEAM 2 - PLAYER 4</option>
+                    <option value="t2_p4">TEAM 2 - PLAYER 5</option>
+                </select>
+                <div style="font-size:10px; color:#666; margin-top:10px">* Dùng cho Thẻ bài lật (Reveal)</div>
+            </div>
+            <div style="flex:1" class="setup-box">
+                <label>ZOOM <span id="val-zoom-rev">100</span>%</label>
+                <input type="range" id="tune-zoom-rev" min="50" max="300" value="100" oninput="updateTuningValuesReveal()">
+            </div>
+            <div style="flex:1" class="setup-box">
+                <label>OFFSET X <span id="val-offx-rev">50</span>%</label>
+                <input type="range" id="tune-offx-rev" min="0" max="100" value="50" oninput="updateTuningValuesReveal()">
+            </div>
+            <div style="flex:1" class="setup-box">
+                <label>OFFSET Y <span id="val-offy-rev">50</span>%</label>
+                <input type="range" id="tune-offy-rev" min="0" max="100" value="50" oninput="updateTuningValuesReveal()">
+            </div>
+            <button id="save-tuning-btn-rev" class="win-btn" onclick="applyPlayerTuningReveal()" style="background: #6f42c1; color: #fff; height: 45px; margin-top:15px; min-width: 120px;">💾 LƯU REVEAL</button>
+        </div>
+    </div>
+
+    <!-- Team & Series Setup -->
+    <div class="admin-section">
+        <h3 style="margin-bottom:15px; color:#ffcc00">TEAM & SERIES SETUP</h3>
+        <div class="setup-grid">
+            <div class="team-setup-box" style="border-top: 4px solid #007bff;">
+                <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px">
+                    <img id="prev-t1-logo" class="logo-preview">
+                    <div style="flex:1">
+                        <label style="font-size:11px; display:block">Tên Team 1:</label>
+                        <input type="text" id="setup-t1-name" placeholder="Tên Đội 1" onchange="updateTeamData()" style="width:90%">
+                        <input type="file" id="upload-t1-logo" onchange="handleLogo(event, 1)" style="font-size:10px; margin-top:5px">
+                    </div>
+                </div>
+                <div class="player-name-grid" id="setup-t1-players"></div>
+            </div>
+            <div class="team-setup-box" style="border-top: 4px solid #ff3e3e;">
+                <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px">
+                    <img id="prev-t2-logo" class="logo-preview">
+                    <div style="flex:1">
+                        <label style="font-size:11px; display:block">Tên Team 2:</label>
+                        <input type="text" id="setup-t2-name" placeholder="Tên Đội 2" onchange="updateTeamData()" style="width:90%">
+                        <input type="file" id="upload-t2-logo" onchange="handleLogo(event, 2)" style="font-size:10px; margin-top:5px">
+                    </div>
+                </div>
+                <div class="player-name-grid" id="setup-t2-players"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="global-tools" style="align-items: center;">
+        <label>STAGE: <input type="text" id="match-stage" value="GROUP STAGE 1" onchange="saveAll()" style="width:150px"></label>
+        <label>SERIES: 
+            <input type="text" id="series-type" list="series-presets" value="BO3 SERIES" placeholder="(Để trống để xóa chữ)" onchange="saveAll()" style="width:160px; padding:4px; background:#333; color:#fff; border:1px solid #555; border-radius:2px;">
+            <datalist id="series-presets">
+                <option value="BO1 SERIES"></option>
+                <option value="BO3 SERIES"></option>
+                <option value="BO5 SERIES"></option>
+                <option value="BO7 SERIES"></option>
+                <option value="CHUNG KẾT"></option>
+                <option value="VÒNG BẢNG"></option>
+            </datalist>
+        </label>
+        <label>EVENT: <input type="text" id="event-title" value="ARENA OF GLORY SPRING 2026" onchange="saveAll()" style="width:180px"></label>
+        <label style="display:flex; align-items:center; gap:5px; font-size:12px; font-weight:bold; color:#ffcc00; cursor:pointer; background:#333; padding:4px 8px; border-radius:4px; border:1px solid #555;">
+            <input type="checkbox" id="global-ban-toggle" checked onchange="refreshHeroGridState(); saveAll();"> GLOBAL BAN PICK
+        </label>
+        <button onclick="lockCurrentTurn()" style="background:#ffcc00; color:#000; border-color:#ffcc00; font-weight:900;">🔒 KHÓA LƯỢT NÀY</button>
+        <button onclick="startTimer()" id="btn-timer-start">▶ TIMER</button>
+        <button onclick="pauseTimer()">⏸ PAUSE</button>
+        <button onclick="resetTimer()">🔄 60s</button>
+        <button onclick="prevPhase()">◀ PREV</button>
+        <button onclick="nextPhase()">NEXT ▶</button>
+        <button class="reset" onclick="resetDraft()" title="Chỉ xóa cấm/chọn của ván đang đánh">🛑 RESET VÁN NÀY</button>
+        <button class="reset" onclick="clearSeriesHistory()" style="background:#d97706; border-color:#f59e0b;" title="Đưa tỉ số về 0-0 và xóa lịch sử tướng các ván trước (giữ nguyên tên 2 đội)">🔄 RESET LOẠT TRẬN (0-0)</button>
+        <button class="reset" onclick="resetAllForNewMatch()" style="background:#dc2626; border-color:#ef4444; font-weight:900;" title="Xóa sạch tên đội, logo, ảnh tuyển thủ, tỉ số, lịch sử Global Ban để qua cặp đấu mới">🆕 TRẬN MỚI (RESET TOÀN BỘ)</button>
+        <div id="reveal-overlay"></div>
+        <div style="flex:1"></div>
+        <div id="hero-count" style="color:#aaa; font-size: 11px;">Heroes: 0</div>
+    </div>
+
+    <div class="admin-section t1 team-row">
+        <div class="team-label" id="label-t1" style="color:#007bff">TEAM 1</div>
+        <div class="player-controls" id="t1-controls"></div>
+        <div class="bans-mini" id="t1-bans-controls"></div>
+    </div>
+
+    <div class="admin-section t2 team-row">
+        <div class="team-label" id="label-t2" style="color:#ff3e3e">TEAM 2</div>
+        <div class="player-controls" id="t2-controls"></div>
+        <div class="bans-mini" id="t2-bans-controls"></div>
+    </div>
+
+    <div class="admin-section">
+        <h3 style="margin-bottom:10px">HERO BOARD</h3>
+        <input type="text" class="hero-search-bar" id="hero-search" placeholder="Search Hero..." oninput="filterHeroes()">
+        <div class="hero-grid" id="main-hero-grid"></div>
+    </div>
+
+    <!-- Framing Controls (Setup) -->
+    <div class="admin-section">
+        <h3 style="margin-bottom:15px; color:#ffcc00">BAN SETUP (ZOOM / X / Y)</h3>
+        <div id="ban-setup-grid" style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 10px;"></div>
+    </div>
+
+    <div class="admin-section">
+        <h3 style="margin-bottom:15px; color:#ffcc00">PICK SETUP (ZOOM / X / Y)</h3>
+        <div id="setup-grid" style="display:grid; grid-template-columns: repeat(5, 1fr); gap: 10px;"></div>
+    </div>
+
+    <script>
+        let heroes = [];
+        let currentStep = 0;
+        let activeIds = []; // Strict sequence IDs (yellow highlight, HUD "PICKING")
+        let selectionIds = []; // Manual selection IDs (for hero change, blue/cyan rim)
+        let timeLeft = 60;
+        let timerInterval;
+        let hudVisible = false;
+        let musicPlaying = false;
+        let camsVisible = true;
+        let revealState = { active: false, phase: 'hidden', triggerTime: 0 };
+        let victoryCam = { active: false, team: 1 };
+        let playerTuning = {}; // Key format: t1_p0, t1_p1...
+        let revealTuning = {}; // Separate XYZ for Reveal
+ 
+        // Initialize players
+        for(let team=1; team<=2; team++) {
+            for(let p=0; p<5; p++) {
+                playerTuning[`t${team}_p${p}`] = { zoom: 100, offx: 50, offy: 50 };
+                revealTuning[`t${team}_p${p}`] = { zoom: 100, offx: 50, offy: 50 };
+            }
+        }
+
+        // Persistent Team Data
+        let teamData = {
+            t1: { name: "TEAM 1", logo: "", players: ["P1", "P2", "P3", "P4", "P5"], playerPhotos: ["", "", "", "", ""], score: 0, history: [] },
+            t2: { name: "TEAM 2", logo: "", players: ["P1", "P2", "P3", "P4", "P5"], playerPhotos: ["", "", "", "", ""], score: 0, history: [] }
+        };
+
+        const sequence = [
+            {t: 'B', team: 1, slot: 1}, {t: 'B', team: 2, slot: 1},
+            {t: 'B', team: 1, slot: 2}, {t: 'B', team: 2, slot: 2},
+            {t: 'P', team: 1, slot: 0},
+            {t: 'P', team: 2, slot: 0}, {t: 'P', team: 2, slot: 1},
+            {t: 'P', team: 1, slot: 1}, {t: 'P', team: 1, slot: 2},
+            {t: 'P', team: 2, slot: 2},
+            {t: 'B', team: 2, slot: 3}, {t: 'B', team: 1, slot: 3},
+            {t: 'B', team: 2, slot: 4}, {t: 'B', team: 1, slot: 4},
+            {t: 'P', team: 2, slot: 3},
+            {t: 'P', team: 1, slot: 3}, {t: 'P', team: 1, slot: 4},
+            {t: 'P', team: 2, slot: 4}
+        ];
+
+        async function init() {
+            const resp = await fetch('heroes.json');
+            heroes = await resp.json();
+            heroes.sort((a, b) => a.name.localeCompare(b.name));
+            document.getElementById('hero-count').innerText = `Heroes: ${heroes.length}`;
+            
+            try {
+                const cfgResp = await fetch('/get');
+                const cfgData = await cfgResp.json();
+                masterConfigs = cfgData.heroConfigs || {};
+            } catch (e) {}
+
+            renderSetupUI();
+            renderEmptySlots();
+            renderHeroGrid();
+            loadState();
+            updatePhaseDisplay();
+            updateSetupFields();
+        }
+
+        function renderSetupUI() {
+            for(let team=1; team<=2; team++) {
+                const container = document.getElementById(`setup-t${team}-players`);
+                container.innerHTML = '';
+                const photoContainer = document.getElementById(`p-photos-t${team}`);
+                photoContainer.innerHTML = '';
+                for(let p=0; p<5; p++) {
+                    container.innerHTML += `<input type="text" id="setup-t${team}-p${p}" placeholder="Player ${p+1}" onchange="updateTeamData()" style="width:90%">`;
+                    photoContainer.innerHTML += `
+                        <div style="text-align:center">
+                            <div style="width:100%; height:40px; background:#000; margin-bottom:2px; border:1px solid #444; border-radius:2px; overflow:hidden">
+                                <img id="prev-t${team}-p${p}" class="logo-preview" style="width:100%; height:100%">
+                            </div>
+                            <input type="file" onchange="handlePlayerPhoto(event, ${team}, ${p})" style="width:40px; font-size:8px">
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function updateSetupFields() {
+            document.getElementById('setup-t1-name').value = teamData.t1.name;
+            document.getElementById('setup-t2-name').value = teamData.t2.name;
+            document.getElementById('score-t1').innerText = teamData.t1.score;
+            document.getElementById('score-t2').innerText = teamData.t2.score;
+            const logo1El = document.getElementById('prev-t1-logo');
+            if (logo1El) { if (teamData.t1.logo) logo1El.src = teamData.t1.logo; else logo1El.removeAttribute('src'); }
+            const logo2El = document.getElementById('prev-t2-logo');
+            if (logo2El) { if (teamData.t2.logo) logo2El.src = teamData.t2.logo; else logo2El.removeAttribute('src'); }
+            document.getElementById('label-t1').innerText = teamData.t1.name;
+            document.getElementById('label-t2').innerText = teamData.t2.name;
+
+            for(let team=1; team<=2; team++) {
+                for(let p=0; p<5; p++) {
+                    const input = document.getElementById(`setup-t${team}-p${p}`);
+                    if(input) input.value = teamData[`t${team}`].players[p];
+                    const nameLabel = document.getElementById(`name-t${team}_p${p}`);
+                    if(nameLabel) nameLabel.innerText = teamData[`t${team}`].players[p];
+                    const photoPrev = document.getElementById(`prev-t${team}-p${p}`);
+                    if(photoPrev) {
+                        const pPhoto = teamData[`t${team}`].playerPhotos[p];
+                        if (pPhoto) photoPrev.src = pPhoto;
+                        else photoPrev.removeAttribute('src');
+                    }
+                }
+            }
+            renderSetupSliders('setup-grid', 'p', 5);
+            renderSetupSliders('ban-setup-grid', 'ban', 4);
+            renderGlobalBanHistoryPanel();
+        }
+
+        function getHeroNameById(heroId) {
+            if (!heroId) return '';
+            const found = heroes.find(h => h.id === heroId);
+            return found ? found.name : heroId.replace(/\.[^.]+$/, '').split('_')[0];
+        }
+
+        function renderGlobalBanHistoryPanel() {
+            for (let team = 1; team <= 2; team++) {
+                const key = `t${team}`;
+                const titleEl = document.getElementById(`gban-title-${key}`);
+                const listEl = document.getElementById(`gban-list-${key}`);
+                if (!titleEl || !listEl) continue;
+
+                const tData = teamData[key] || { name: `TEAM ${team}`, history: [] };
+                const hist = Array.isArray(tData.history) ? tData.history : [];
+                const totalHeroes = hist.reduce((acc, g) => acc + (Array.isArray(g) ? g.length : 0), 0);
+                titleEl.innerText = `TƯỚNG ĐÃ CHỌN - ${tData.name} (${totalHeroes} TƯỚNG / ${hist.length} VÁN)`;
+
+                if (hist.length === 0 || totalHeroes === 0) {
+                    listEl.innerHTML = `<span style="color:#666; font-style:italic;">Chưa có tướng ván trước</span>`;
+                    continue;
+                }
+
+                listEl.innerHTML = hist.map((gamePicks, gIdx) => {
+                    if (!Array.isArray(gamePicks) || gamePicks.length === 0) return '';
+                    const chips = gamePicks.map((hId, hIdx) => `
+                        <span class="gban-hero-chip">
+                            <img src="images/${hId}">
+                            <span>${getHeroNameById(hId)}</span>
+                            <button onclick="removeHeroFromHistory('${key}', ${gIdx}, ${hIdx})" title="Xóa tướng này khỏi Global Ban">✕</button>
+                        </span>
+                    `).join('');
+                    return `
+                        <div class="gban-game-row">
+                            <strong style="color:#ffcc00; font-size:10px; min-width:45px;">VÁN ${gIdx + 1}:</strong>
+                            <div style="display:flex; gap:4px; flex-wrap:wrap; flex:1;">${chips}</div>
+                            <button onclick="removeGameFromHistory('${key}', ${gIdx})" style="padding:2px 6px; font-size:9px; background:#444;" title="Xóa cả ván này">🗑️ Xóa ván</button>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function removeHeroFromHistory(teamKey, gameIdx, heroIdx) {
+            if (!teamData[teamKey] || !Array.isArray(teamData[teamKey].history[gameIdx])) return;
+            teamData[teamKey].history[gameIdx].splice(heroIdx, 1);
+            if (teamData[teamKey].history[gameIdx].length === 0) {
+                teamData[teamKey].history.splice(gameIdx, 1);
+            }
+            updateSetupFields();
+            refreshHeroGridState();
+            saveAll();
+        }
+
+        function removeGameFromHistory(teamKey, gameIdx) {
+            if (!teamData[teamKey] || !Array.isArray(teamData[teamKey].history)) return;
+            teamData[teamKey].history.splice(gameIdx, 1);
+            updateSetupFields();
+            refreshHeroGridState();
+            saveAll();
+        }
+
+        function recordCurrentPicksToHistory() {
+            const t1Picks = []; const t2Picks = [];
+            for(let p=0; p<5; p++) {
+                const hero1 = document.getElementById(`img-t1_p${p}`)?.dataset.heroId;
+                const hero2 = document.getElementById(`img-t2_p${p}`)?.dataset.heroId;
+                if(hero1) t1Picks.push(hero1);
+                if(hero2) t2Picks.push(hero2);
+            }
+            if (t1Picks.length === 0 && t2Picks.length === 0) {
+                alert("Chưa có tướng nào được chọn ở các ô Pick P1-P5 của ván hiện tại!");
+                return;
+            }
+            if(!Array.isArray(teamData.t1.history)) teamData.t1.history = [];
+            if(!Array.isArray(teamData.t2.history)) teamData.t2.history = [];
+            teamData.t1.history.push(t1Picks);
+            teamData.t2.history.push(t2Picks);
+            updateSetupFields();
+            refreshHeroGridState();
+            saveAll();
+        }
+
+        function adjustScore(teamNum, delta) {
+            const key = `t${teamNum}`;
+            teamData[key].score = Math.max(0, (teamData[key].score || 0) + delta);
+            updateSetupFields();
+            saveAll();
+        }
+
+        async function updateMasterConfig(heroId, key, value) {
+            if(!heroId) return;
+            if(!masterConfigs[heroId]) masterConfigs[heroId] = { zoom: 100, offx: 50, offy: 20 };
+            masterConfigs[heroId][key] = parseInt(value);
+            
+            // Save to server
+            try {
+                await fetch('/save-config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ heroId, ...masterConfigs[heroId] })
+                });
+            } catch (e) {}
+            saveAll(); // Refresh HUD
+        }
+
+        function renderSetupSliders(containerId, prefix, count) {
+            const grid = document.getElementById(containerId);
+            if(!grid) return;
+            grid.innerHTML = '';
+            for(let team=1; team<=2; team++) {
+                for(let i=(prefix==='ban'?1:0); i<(prefix==='ban'?count+1:count); i++) {
+                    const id = `t${team}_${prefix}${i}`;
+                    const img = document.getElementById(`img-${id}`);
+                    if(!img || !img.dataset.heroId) continue;
+                    
+                    const heroId = img.dataset.heroId;
+                    const cfg = masterConfigs[heroId] || { zoom: 100, offx: 50, offy: 20 };
+                    
+                    const box = document.createElement('div');
+                    box.className = 'setup-box';
+                    box.style.border = `1px solid ${team===1?'#007bff':'#ff3e3e'}`;
+                    box.innerHTML = `
+                        <div style="font-size:10px; font-weight:bold; margin-bottom:5px">${heroId.split('.')[0].toUpperCase()}</div>
+                        <label>Z: <input type="range" min="100" max="300" value="${cfg.zoom}" oninput="updateMasterConfig('${heroId}', 'zoom', this.value)"></label>
+                        <label>X: <input type="range" min="0" max="100" value="${cfg.offx}" oninput="updateMasterConfig('${heroId}', 'offx', this.value)"></label>
+                        <label>Y: <input type="range" min="0" max="100" value="${cfg.offy}" oninput="updateMasterConfig('${heroId}', 'offy', this.value)"></label>
+                    `;
+                    grid.appendChild(box);
+                }
+            }
+        }
+
+        function handleLogo(event, team) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                teamData[`t${team}`].logo = e.target.result;
+                updateSetupFields();
+                saveAll();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handlePlayerPhoto(event, team, p) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                teamData[`t${team}`].playerPhotos[p] = e.target.result;
+                updateSetupFields();
+                saveAll();
+            };
+            reader.readAsDataURL(file);
+        }
+
+
+        function updateTeamData() {
+            teamData.t1.name = document.getElementById('setup-t1-name').value;
+            teamData.t2.name = document.getElementById('setup-t2-name').value;
+            for(let team=1; team<=2; team++) {
+                for(let p=0; p<5; p++) {
+                    const el = document.getElementById(`setup-t${team}-p${p}`);
+                    teamData[`t${team}`].players[p] = el ? el.value : "";
+                }
+            }
+            updateSetupFields();
+            saveAll();
+        }
+
+        function swapSidesPrompt() {
+            if(confirm("Bạn muốn ĐỔI BÊN ngay lập tức? (Hoán đổi Tên, Logo, Tỉ số, Cầu thủ và Lịch sử Global Ban)")) swapSides();
+        }
+
+        function swapSides(preserveDraftSlots = true) {
+            // Snapshot current draft slots before swapping if needed
+            const prevSlots = {};
+            if (preserveDraftSlots) {
+                for (let team = 1; team <= 2; team++) {
+                    for (let p = 0; p < 5; p++) prevSlots[`t${team}_p${p}`] = getSlotData(`t${team}_p${p}`);
+                    for (let b = 1; b <= 4; b++) prevSlots[`t${team}_ban${b}`] = getSlotData(`t${team}_ban${b}`);
+                }
+            }
+
+            // 1. Swap teamData (includes name, logo, score, players, playerPhotos, history)
+            const tempTeam = JSON.parse(JSON.stringify(teamData.t1));
+            teamData.t1 = JSON.parse(JSON.stringify(teamData.t2));
+            teamData.t2 = tempTeam;
+
+            // 2. Swap playerTuning and revealTuning between t1_p0..4 and t2_p0..4
+            for (let p = 0; p < 5; p++) {
+                const k1 = `t1_p${p}`, k2 = `t2_p${p}`;
+                const tmpPT = playerTuning[k1];
+                playerTuning[k1] = playerTuning[k2];
+                playerTuning[k2] = tmpPT;
+                if (!playerTuning[k1]) delete playerTuning[k1];
+                if (!playerTuning[k2]) delete playerTuning[k2];
+
+                const tmpRT = revealTuning[k1];
+                revealTuning[k1] = revealTuning[k2];
+                revealTuning[k2] = tmpRT;
+                if (!revealTuning[k1]) delete revealTuning[k1];
+                if (!revealTuning[k2]) delete revealTuning[k2];
+            }
+
+            // 3. Re-render slots with new player names and restore any active draft heroes
+            renderEmptySlots();
+            if (preserveDraftSlots) {
+                for (let p = 0; p < 5; p++) {
+                    setSlotData(`t1_p${p}`, { ...prevSlots[`t2_p${p}`], playerName: teamData.t1.players[p] || `P${p+1}` });
+                    setSlotData(`t2_p${p}`, { ...prevSlots[`t1_p${p}`], playerName: teamData.t2.players[p] || `P${p+1}` });
+                }
+                for (let b = 1; b <= 4; b++) {
+                    setSlotData(`t1_ban${b}`, { ...prevSlots[`t2_ban${b}`], playerName: `BAN ${b}` });
+                    setSlotData(`t2_ban${b}`, { ...prevSlots[`t1_ban${b}`], playerName: `BAN ${b}` });
+                }
+            }
+
+            updateSetupFields();
+            updatePhaseDisplay();
+            loadPlayerTuning();
+            loadPlayerTuningReveal();
+            refreshHeroGridState();
+            saveAll();
+        }
+
+        async function matchWin(teamNum) {
+            const winningTeam = teamData[`t${teamNum}`].name;
+            if(!confirm(`Xác nhận ${winningTeam} THẮNG ván này?`)) return;
+
+            teamData[`t${teamNum}`].score++;
+            const t1Picks = []; const t2Picks = [];
+            for(let p=0; p<5; p++) {
+                const id1 = `t1_p${p}`; const id2 = `t2_p${p}`;
+                const hero1 = document.getElementById(`img-${id1}`)?.dataset.heroId;
+                const hero2 = document.getElementById(`img-${id2}`)?.dataset.heroId;
+                if(hero1) t1Picks.push(hero1);
+                if(hero2) t2Picks.push(hero2);
+            }
+            if(!Array.isArray(teamData.t1.history)) teamData.t1.history = [];
+            if(!Array.isArray(teamData.t2.history)) teamData.t2.history = [];
+            if(t1Picks.length > 0 || t2Picks.length > 0) {
+                teamData.t1.history.push(t1Picks);
+                teamData.t2.history.push(t2Picks);
+            }
+
+            const doSwap = confirm("Trận đấu kết thúc! Bạn có muốn ĐỔI BÊN cho ván tiếp theo không?");
+            if(doSwap) {
+                swapSides(false);
+            }
+            await resetDraftInternal();
+        }
+
+        let dragSourceId = null;
+
+        function handleDragStart(e) {
+            dragSourceId = e.currentTarget.id.replace('slot-', '');
+            e.dataTransfer.setData("text/plain", dragSourceId);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.add('drag-over');
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            const targetId = e.currentTarget.id.replace('slot-', '');
+            const sourceId = e.dataTransfer.getData("text/plain");
+
+            if (sourceId === targetId) return;
+            
+            // Ensure same team
+            if (sourceId.split('_')[0] !== targetId.split('_')[0]) return;
+
+            // Elements
+            const imgSrc = document.getElementById(`img-${sourceId}`);
+            const imgTarget = document.getElementById(`img-${targetId}`);
+            const lockSrc = document.getElementById(`lock-${sourceId}`);
+            const lockTarget = document.getElementById(`lock-${targetId}`);
+
+            // Swap Image Data
+            const tempHeroId = imgSrc.dataset.heroId || "";
+            const tempSrc = imgSrc.src;
+            imgSrc.dataset.heroId = imgTarget.dataset.heroId || "";
+            imgSrc.src = imgTarget.src;
+            imgTarget.dataset.heroId = tempHeroId;
+            imgTarget.src = tempSrc;
+
+            // Swap Lock Status
+            const tempLock = lockSrc.innerText;
+            lockSrc.innerText = lockTarget.innerText;
+            lockTarget.innerText = tempLock;
+
+            saveAll();
+        }
+
+        function renderEmptySlots() {
+            const t1 = document.getElementById('t1-controls');
+            const t2 = document.getElementById('t2-controls');
+            t1.innerHTML = ''; t2.innerHTML = '';
+            for(let team=1; team<=2; team++) {
+                const pBox = document.getElementById(`t${team}-controls`);
+                const bBox = document.getElementById(`t${team}-bans-controls`);
+                bBox.innerHTML = '';
+                for(let p=0; p<5; p++) pBox.innerHTML += createSlotHTML(`t${team}_p${p}`, teamData[`t${team}`].players[p] || `PLAYER ${p+1}`, team);
+                for(let b=1; b<=4; b++) bBox.innerHTML += createSlotHTML(`t${team}_ban${b}`, `BAN ${b}`, team, true);
+            }
+        }
+
+        function createSlotHTML(id, label, team, isBan=false) {
+            const defaultImg = '';
+            const extraClass = isBan ? 'ban-slot-mini' : '';
+            const dragAttrs = isBan ? '' : `draggable="true" ondragstart="handleDragStart(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)"`;
+            
+            return `
+                <div class="p-slot ${extraClass}" id="slot-${id}" onclick="setActiveSlot('${id}')" ${dragAttrs}>
+                    <div class="img-box" onclick="setActiveSlot('${id}')" style="position:relative; width:100%; height:90px; overflow:hidden; background:#141414;">
+                        <img id="img-${id}" src="${defaultImg}" style="width:100%; height:100%; object-fit:cover;">
+                    </div>
+                    <span class="p-name" id="name-${id}" onclick="event.stopPropagation(); editName('${id}')">${label}</span>
+                    <input type="text" value="${label}" id="input-name-${id}" onchange="saveAll()" onblur="finishEdit('${id}')" onclick="event.stopPropagation()" style="display:none">
+                    <div class="advanced-controls" onclick="event.stopPropagation()" style="display:flex; gap:2px; justify-content:center; margin-top:3px;">
+                        <button onclick="toggleLock('${id}')" id="lock-${id}" style="flex:1; padding:4px 4px; font-size:10px;">KHÓA</button>
+                        <button onclick="clearSlot('${id}')" title="Xóa tướng ô này" style="padding:4px 6px; font-size:10px; background:#522; border-color:#733;">✕</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function clearSlot(id) {
+            const img = document.getElementById(`img-${id}`);
+            if (!img) return;
+            img.removeAttribute('src');
+            img.dataset.heroId = '';
+            selectionIds = [id];
+            refreshActiveUI();
+            saveAll();
+        }
+
+        function editName(id) {
+            const nameSpan = document.getElementById(`name-${id}`);
+            const nameInput = document.getElementById(`input-name-${id}`);
+            nameSpan.style.display = 'none'; nameInput.style.display = 'block'; nameInput.focus();
+        }
+
+        function finishEdit(id) {
+            const nameSpan = document.getElementById(`name-${id}`);
+            const nameInput = document.getElementById(`input-name-${id}`);
+            nameSpan.style.display = 'block'; nameInput.style.display = 'none';
+            nameSpan.innerText = nameInput.value;
+            if(id.includes('_p')) {
+                const team = id.startsWith('t1') ? 't1' : 't2';
+                const pIdx = parseInt(id.split('_p')[1]);
+                teamData[team].players[pIdx] = nameInput.value;
+                updateSetupFields();
+            }
+            saveAll();
+        }
+
+        function renderHeroGrid() {
+            const grid = document.getElementById('main-hero-grid');
+            grid.innerHTML = heroes.map(h => `
+                <div class="grid-item" id="hero-btn-${h.id}" onclick="selectHero('${h.id}')">
+                    <img src="images/${h.id}">
+                    <span>${h.name}</span>
+                </div>
+            `).join('');
+        }
+
+        function normalizeVietnamese(str) {
+            if (!str) return '';
+            return str.normalize('NFD')
+                      .replace(/[\u0300-\u036f]/g, "")
+                      .replace(/đ/g, "d").replace(/Đ/g, "D")
+                      .toLowerCase();
+        }
+
+        function filterHeroes() {
+            const q = normalizeVietnamese(document.getElementById('hero-search').value);
+            document.querySelectorAll('.grid-item').forEach(item => {
+                const name = normalizeVietnamese(item.querySelector('span').innerText);
+                item.style.display = name.includes(q) ? 'block' : 'none';
+            });
+        }
+
+        function setActiveSlot(id) { selectionIds = [id]; refreshActiveUI(); }
+
+        function getTargetSlotId() {
+            // 1. Manual click on any slot (even locked or 2nd slot of double pick) takes top priority!
+            if (selectionIds.length > 0) return selectionIds[0];
+
+            // 2. In active turn (single or double pick), prefer the first unlocked slot that is still EMPTY
+            const unlockedActive = activeIds.filter(id => {
+                const btn = document.getElementById(`lock-${id}`);
+                return btn && btn.innerText === 'KHÓA';
+            });
+            const emptyActive = unlockedActive.find(id => {
+                const img = document.getElementById(`img-${id}`);
+                return !img || !img.dataset.heroId;
+            });
+            if (emptyActive) return emptyActive;
+
+            // 3. Fallback to first unlocked slot in activeIds
+            return unlockedActive[0] || null;
+        }
+
+        function getUsedHeroesMap(excludeSlotId = null) {
+            const usedCurrent = new Set();
+            for(let team=1; team<=2; team++) {
+                for(let p=0; p<5; p++) {
+                    const id = `t${team}_p${p}`;
+                    if(id === excludeSlotId) continue;
+                    const img = document.getElementById(`img-${id}`);
+                    if(img && img.dataset.heroId) usedCurrent.add(img.dataset.heroId);
+                }
+                for(let b=1; b<=4; b++) {
+                    const id = `t${team}_ban${b}`;
+                    if(id === excludeSlotId) continue;
+                    const img = document.getElementById(`img-${id}`);
+                    if(img && img.dataset.heroId) usedCurrent.add(img.dataset.heroId);
+                }
+            }
+
+            const usedGlobal = new Set();
+            const usedGlobalT1 = new Set();
+            const usedGlobalT2 = new Set();
+            const globalToggle = document.getElementById('global-ban-toggle');
+            const isGlobalOn = !globalToggle || globalToggle.checked;
+
+            if (isGlobalOn) {
+                const h1 = (teamData.t1 && Array.isArray(teamData.t1.history)) ? teamData.t1.history : [];
+                const h2 = (teamData.t2 && Array.isArray(teamData.t2.history)) ? teamData.t2.history : [];
+                h1.forEach(g => { if (Array.isArray(g)) g.forEach(id => usedGlobalT1.add(id)); });
+                h2.forEach(g => { if (Array.isArray(g)) g.forEach(id => usedGlobalT2.add(id)); });
+
+                const targetId = excludeSlotId || getTargetSlotId();
+                if (targetId && targetId.includes('_p')) {
+                    const teamKey = targetId.split('_')[0];
+                    const ownSet = (teamKey === 't1') ? usedGlobalT1 : usedGlobalT2;
+                    ownSet.forEach(id => usedGlobal.add(id));
+                }
+            }
+            return { usedCurrent, usedGlobal, usedGlobalT1, usedGlobalT2 };
+        }
+
+        function refreshHeroGridState() {
+            const { usedCurrent, usedGlobal, usedGlobalT1, usedGlobalT2 } = getUsedHeroesMap(null);
+            heroes.forEach(h => {
+                const el = document.getElementById(`hero-btn-${h.id}`);
+                if(!el) return;
+                el.classList.remove('used-current', 'used-global', 'used-prev-info');
+                el.removeAttribute('data-prev-label');
+                if(usedCurrent.has(h.id)) {
+                    el.classList.add('used-current');
+                } else if(usedGlobal.has(h.id)) {
+                    el.classList.add('used-global');
+                } else if (usedGlobalT1.has(h.id) || usedGlobalT2.has(h.id)) {
+                    el.classList.add('used-prev-info');
+                    const inT1 = usedGlobalT1.has(h.id);
+                    const inT2 = usedGlobalT2.has(h.id);
+                    el.setAttribute('data-prev-label', (inT1 && inT2) ? 'T1 & T2 ĐÃ DÙNG' : (inT1 ? 'T1 ĐÃ DÙNG' : 'T2 ĐÃ DÙNG'));
+                }
+            });
+        }
+
+        function refreshActiveUI() {
+            document.querySelectorAll('.p-slot').forEach(s => {
+                s.classList.remove('active');
+                s.classList.remove('selected-manual');
+            });
+            // Show Yellow for Active Draft Turn
+            activeIds.forEach(id => {
+                const slot = document.getElementById(`slot-${id}`);
+                if(slot) slot.classList.add('active');
+            });
+            // Show Blue/Cyan for Manual Selection
+            selectionIds.forEach(id => {
+                const slot = document.getElementById(`slot-${id}`);
+                if(slot) slot.classList.add('selected-manual');
+            });
+            refreshHeroGridState();
+        }
+
+        function selectHero(heroId) {
+            const targetId = getTargetSlotId();
+            if(!targetId) return;
+
+            const { usedCurrent, usedGlobal } = getUsedHeroesMap(targetId);
+            if(usedCurrent.has(heroId) || usedGlobal.has(heroId)) {
+                return;
+            }
+
+            const img = document.getElementById(`img-${targetId}`);
+            if(!img) return;
+            img.src = `images/${heroId}`;
+            img.dataset.heroId = heroId;
+
+            // Clear manual override after picking so double-pick auto-advances to the next empty slot or returns to active turn
+            if (selectionIds.length > 0) {
+                selectionIds = [];
+            }
+
+            refreshActiveUI();
+            saveAll();
+        }
+
+        function updatePhaseDisplay() {
+            const step = sequence[currentStep];
+            if(!step) { 
+                document.getElementById('current-phase-display').innerText = "DRAFT COMPLETED - SWAP PHASE (ĐỔI TƯỚNG)"; 
+                activeIds = []; 
+                refreshActiveUI(); 
+                saveAll();
+                return; 
+            }
+            
+            const currentId = (step.t === 'B') ? `t${step.team}_ban${step.slot}` : `t${step.team}_p${step.slot}`;
+            activeIds = [currentId];
+
+            // Check forward for simultaneous double-pick
+            let nextIdx = currentStep + 1;
+            while(nextIdx < sequence.length) {
+                const nextStep = sequence[nextIdx];
+                if(nextStep.team === step.team && nextStep.t === step.t) {
+                    const nextId = (nextStep.t === 'B') ? `t${nextStep.team}_ban${nextStep.slot}` : `t${nextStep.team}_p${nextStep.slot}`;
+                    activeIds.push(nextId);
+                    nextIdx++;
+                } else {
+                    break;
+                }
+            }
+
+            // Check backward for simultaneous double-pick
+            let prevIdx = currentStep - 1;
+            while(prevIdx >= 0) {
+                const prevStep = sequence[prevIdx];
+                if(prevStep.team === step.team && prevStep.t === step.t) {
+                    const prevId = (prevStep.t === 'B') ? `t${prevStep.team}_ban${prevStep.slot}` : `t${prevStep.team}_p${prevStep.slot}`;
+                    const lockBtn = document.getElementById(`lock-${prevId}`);
+                    if(lockBtn && lockBtn.innerText === 'KHÓA') {
+                        if(!activeIds.includes(prevId)) activeIds.unshift(prevId);
+                    }
+                    prevIdx--;
+                } else {
+                    break;
+                }
+            }
+
+            // FILTER: Never include a slot in activeIds if it is ALREADY locked
+            activeIds = activeIds.filter(id => {
+                const btn = document.getElementById(`lock-${id}`);
+                return btn && btn.innerText === 'KHÓA';
+            });
+
+            const teamName = (step.team === 1) ? teamData.t1.name : teamData.t2.name;
+            const typeLabel = (step.t === 'B') ? "BANNING" : "PICKING";
+            const slotLabels = activeIds.map(id => id.includes('_ban') ? `Ban ${id.split('_ban')[1]}` : `Pick ${parseInt(id.split('_p')[1]) + 1}`).join(' & ');
+            const doubleTag = activeIds.length > 1 ? " (LƯỢT ĐÔI)" : "";
+            document.getElementById('current-phase-display').innerText = `${teamName} ${typeLabel} - ${slotLabels}${doubleTag}`;
+
+            refreshActiveUI();
+        }
+
+        function nextPhase() { 
+            if(currentStep < sequence.length - 1) { 
+                currentStep++; updatePhaseDisplay(); resetTimer(); saveAll(); 
+            } else { 
+                currentStep++; updatePhaseDisplay(); saveAll(); 
+            } 
+        }
+        function prevPhase() { if(currentStep > 0) { currentStep--; updatePhaseDisplay(); saveAll(); } }
+
+        function toggleLock(id) {
+            const btn = document.getElementById(`lock-${id}`);
+            if (!btn) return;
+            const isLocking = btn.innerText === 'KHÓA';
+            const oldStep = sequence[currentStep];
+
+            btn.innerText = isLocking ? 'MỞ KHÓA' : 'KHÓA';
+            selectionIds = [];
+
+            let nextUnlockedStep = sequence.length;
+            for(let i=0; i<sequence.length; i++) {
+                const step = sequence[i];
+                const stepId = (step.t === 'B') ? `t${step.team}_ban${step.slot}` : `t${step.team}_p${step.slot}`;
+                const stepBtn = document.getElementById(`lock-${stepId}`);
+                if (stepBtn && stepBtn.innerText === 'KHÓA') { 
+                    nextUnlockedStep = i;
+                    break;
+                }
+            }
+
+            const newStep = sequence[nextUnlockedStep];
+            const isSameTurn = oldStep && newStep && oldStep.team === newStep.team && oldStep.t === newStep.t && Math.abs(nextUnlockedStep - currentStep) <= 1;
+
+            currentStep = nextUnlockedStep;
+            updatePhaseDisplay();
+
+            // Only reset & restart timer when locking finishes the current team's turn (not mid-double-pick or when unlocking to fix a mistake)
+            if (isLocking && !isSameTurn) {
+                resetTimer();
+                startTimer();
+            }
+
+            refreshHeroGridState();
+            saveAll();
+        }
+
+        function lockCurrentTurn() {
+            if (!activeIds || activeIds.length === 0) return;
+            const toLock = [...activeIds];
+            toLock.forEach(id => {
+                const btn = document.getElementById(`lock-${id}`);
+                if (btn && btn.innerText === 'KHÓA') {
+                    btn.innerText = 'MỞ KHÓA';
+                }
+            });
+            selectionIds = [];
+
+            let nextUnlockedStep = sequence.length;
+            for(let i=0; i<sequence.length; i++) {
+                const step = sequence[i];
+                const stepId = (step.t === 'B') ? `t${step.team}_ban${step.slot}` : `t${step.team}_p${step.slot}`;
+                const stepBtn = document.getElementById(`lock-${stepId}`);
+                if (stepBtn && stepBtn.innerText === 'KHÓA') { 
+                    nextUnlockedStep = i;
+                    break;
+                }
+            }
+
+            currentStep = nextUnlockedStep;
+            updatePhaseDisplay();
+            resetTimer();
+            startTimer();
+            refreshHeroGridState();
+            saveAll();
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    saveAll(true);
+                } else {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    saveAll(true);
+                }
+            }, 1000);
+            saveAll(true);
+        }
+
+        function pauseTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                saveAll(true);
+            }
+        }
+
+        function resetTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            timeLeft = 60;
+            saveAll(true);
+        }
+
+        function updateOverlayStatusUI() {
+            const hudEl = document.getElementById('hud-status');
+            if (hudEl) {
+                hudEl.innerText = hudVisible ? 'VISIBLE' : 'HIDDEN';
+                hudEl.style.color = hudVisible ? '#0f0' : '#f00';
+            }
+            const igEl = document.getElementById('ingame-status');
+            if (igEl) {
+                const phase = revealState ? revealState.phase : 'hidden';
+                if (phase === 'split') {
+                    igEl.innerText = 'ON (IN-GAME)';
+                    igEl.style.color = '#00a2ff';
+                } else if (phase === 'players') {
+                    igEl.innerText = 'REVEAL CARDS';
+                    igEl.style.color = '#d63384';
+                } else {
+                    igEl.innerText = 'OFF';
+                    igEl.style.color = '#aaa';
+                }
+            }
+        }
+
+        function controlHUD(visible, startMusic) {
+            hudVisible = visible;
+            if(startMusic === true) musicPlaying = true;
+            // Automatically close Reveal / In-Game HUD when showing the Ban/Pick HUD so it is never blocked
+            if(visible && revealState && revealState.phase !== 'hidden') {
+                revealState.active = false;
+                revealState.phase = 'hidden';
+                revealState.triggerTime = Date.now();
+            }
+            if(visible && currentStep < sequence.length && !timerInterval) {
+                startTimer();
+            }
+            updateOverlayStatusUI();
+            saveAll();
+        }
+
+        function controlMusic(playing) {
+            musicPlaying = playing;
+            saveAll();
+        }
+
+        function controlReveal(phase) {
+            revealState.active = phase !== 'hidden';
+            revealState.phase = phase;
+            revealState.triggerTime = Date.now();
+            if (phase === 'hidden' && victoryCam && victoryCam.active) {
+                victoryCam.active = false;
+                updateVictoryCamUI();
+            }
+            updateOverlayStatusUI();
+            saveAll();
+        }
+
+        function toggleVictoryCam(teamNum) {
+            if (teamNum === 0) {
+                victoryCam = { active: false, team: 1 };
+            } else {
+                if (victoryCam.active && victoryCam.team === teamNum) {
+                    victoryCam.active = false;
+                } else {
+                    victoryCam = { active: true, team: teamNum };
+                    // Automatically open In-Game HUD if not already open
+                    if (!revealState || revealState.phase !== 'split') {
+                        revealState.active = true;
+                        revealState.phase = 'split';
+                        revealState.triggerTime = Date.now();
+                        updateOverlayStatusUI();
+                    }
+                }
+            }
+            updateVictoryCamUI();
+            saveAll();
+        }
+
+        function updateVictoryCamUI() {
+            const statusEl = document.getElementById('victory-status');
+            const t1Btn = document.getElementById('victory-t1-btn');
+            const t2Btn = document.getElementById('victory-t2-btn');
+            if (!statusEl) return;
+
+            if (!victoryCam || !victoryCam.active) {
+                statusEl.innerText = 'OFF';
+                statusEl.style.color = '#aaa';
+                if (t1Btn) t1Btn.style.opacity = '1';
+                if (t2Btn) t2Btn.style.opacity = '1';
+            } else {
+                const tNum = victoryCam.team;
+                statusEl.innerText = `T${tNum} PUSHING`;
+                statusEl.style.color = (tNum === 1) ? '#00d2ff' : '#ff2a54';
+                if (t1Btn) t1Btn.style.opacity = (tNum === 1) ? '1' : '0.6';
+                if (t2Btn) t2Btn.style.opacity = (tNum === 2) ? '1' : '0.6';
+            }
+        }
+
+        async function saveAll(isSilent = false) {
+            const seriesEl = document.getElementById('series-type');
+            const eventEl = document.getElementById('event-title');
+            const globalBanEl = document.getElementById('global-ban-toggle');
+            const state = {
+                stage: document.getElementById('match-stage').value,
+                seriesType: seriesEl ? seriesEl.value : "BO3 SERIES",
+                eventTitle: eventEl ? eventEl.value : "ARENA OF GLORY SPRING 2026",
+                globalBanEnabled: globalBanEl ? globalBanEl.checked : true,
+                timer: timeLeft,
+                timerRunning: !!timerInterval,
+                currentStep: currentStep,
+                activeIds: activeIds,
+                teamData: teamData,
+                hudVisible: hudVisible,
+                musicPlaying: musicPlaying,
+                camsVisible: camsVisible,
+                revealState: revealState,
+                victoryCam: victoryCam,
+                playerTuning: playerTuning,
+                revealTuning: revealTuning
+            };
+            for(let team=1; team<=2; team++) {
+                for(let p=0; p<5; p++) { const id = `t${team}_p${p}`; state[id] = getSlotData(id); }
+                for(let b=1; b<=4; b++) { const id = `t${team}_ban${b}`; state[id] = getSlotData(id); }
+            }
+            if(!isSilent) refreshHeroGridState();
+            localStorage.setItem('aov_hud_state_v2', JSON.stringify(state));
+            try { await fetch('/set', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state) }); } catch (e) {}
+        }
+
+        function getSlotData(id) {
+            const img = document.getElementById(`img-${id}`);
+            const btn = document.getElementById(`lock-${id}`);
+            const isLocked = btn && btn.innerText === 'MỞ KHÓA';
+            return {
+                playerName: document.getElementById(`name-${id}`).innerText,
+                heroId: img.dataset.heroId || "",
+                locked: isLocked,
+                drafting: !isLocked && activeIds.includes(id) 
+            };
+        }
+
+        function loadState() {
+            const raw = localStorage.getItem('aov_hud_state_v2');
+            if(!raw) return;
+            const data = JSON.parse(raw);
+            if(data.stage) document.getElementById('match-stage').value = data.stage;
+            if(data.seriesType && document.getElementById('series-type')) document.getElementById('series-type').value = data.seriesType;
+            if(data.eventTitle && document.getElementById('event-title')) document.getElementById('event-title').value = data.eventTitle;
+            if(data.globalBanEnabled !== undefined && document.getElementById('global-ban-toggle')) document.getElementById('global-ban-toggle').checked = data.globalBanEnabled;
+            currentStep = data.currentStep || 0;
+            activeIds = data.activeIds || [];
+            if(data.teamData) teamData = data.teamData;
+            if(data.hudVisible !== undefined) hudVisible = data.hudVisible;
+            if(data.musicPlaying !== undefined) musicPlaying = data.musicPlaying;
+            if(data.camsVisible !== undefined) camsVisible = data.camsVisible;
+            if(data.revealState) revealState = data.revealState;
+            if(data.playerTuning) playerTuning = data.playerTuning;
+            if(data.revealTuning) revealTuning = data.revealTuning;
+            if(data.victoryCam) victoryCam = data.victoryCam;
+            
+            updateCombatUI();
+            updateVictoryCamUI();
+            loadPlayerTuning();
+            loadPlayerTuningReveal();
+            updateOverlayStatusUI();
+
+            for(let team=1; team<=2; team++) {
+                for(let p=0; p<5; p++) { setSlotData(`t${team}_p${p}`, data[`t${team}_p${p}`]); }
+                for(let b=1; b<=4; b++) { setSlotData(`t${team}_ban${b}`, data[`t${team}_ban${b}`]); }
+            }
+            updateSetupFields();
+            refreshHeroGridState();
+        }
+
+        function setSlotData(id, d) {
+            if(!d) return;
+            document.getElementById(`name-${id}`).innerText = d.playerName;
+            const img = document.getElementById(`img-${id}`);
+            if(img && d.heroId) { img.src = `images/${d.heroId}`; img.dataset.heroId = d.heroId; }
+            const lockBtn = document.getElementById(`lock-${id}`);
+            if(lockBtn) lockBtn.innerText = d.locked ? 'MỞ KHÓA' : 'KHÓA';
+        }
+
+        function resetDraft() {
+            if(confirm("Xóa Cấm/Chọn ván này? (Giữ nguyên Tên đội, Logo, Tỉ số & Global Ban các ván trước)")) {
+                resetDraftInternal();
+            }
+        }
+
+        function clearSeriesHistory() {
+            if(!confirm("Đưa tỉ số về 0 - 0, xóa toàn bộ lịch sử Global Ban Pick và Cấm/Chọn hiện tại? (Giữ nguyên Tên, Logo và Tuyển thủ 2 đội)")) return;
+            teamData.t1.score = 0;
+            teamData.t2.score = 0;
+            teamData.t1.history = [];
+            teamData.t2.history = [];
+            revealState = { active: false, phase: 'hidden', triggerTime: Date.now() };
+            updateOverlayStatusUI();
+            resetDraftInternal();
+        }
+
+        async function resetAllForNewMatch() {
+            if(!confirm("⚠️ XÁC NHẬN QUA TRẬN MỚI (RESET TOÀN BỘ 100%)?\n\nThao tác này sẽ xóa sạch:\n- Tên 2 đội, Logo 2 đội\n- Tên & Ảnh 10 tuyển thủ\n- Tỉ số (về 0 - 0) & Lịch sử tướng Global Ban\n- Toàn bộ tướng Cấm/Chọn hiện tại")) return;
+
+            teamData = {
+                t1: { name: "TEAM 1", logo: "", players: ["P1", "P2", "P3", "P4", "P5"], playerPhotos: ["", "", "", "", ""], score: 0, history: [] },
+                t2: { name: "TEAM 2", logo: "", players: ["P1", "P2", "P3", "P4", "P5"], playerPhotos: ["", "", "", "", ""], score: 0, history: [] }
+            };
+
+            playerTuning = {};
+            revealTuning = {};
+            for(let team=1; team<=2; team++) {
+                for(let p=0; p<5; p++) {
+                    playerTuning[`t${team}_p${p}`] = { zoom: 100, offx: 50, offy: 50 };
+                    revealTuning[`t${team}_p${p}`] = { zoom: 100, offx: 50, offy: 50 };
+                }
+            }
+
+            const upLogo1 = document.getElementById('upload-t1-logo');
+            const upLogo2 = document.getElementById('upload-t2-logo');
+            if (upLogo1) upLogo1.value = '';
+            if (upLogo2) upLogo2.value = '';
+
+            revealState = { active: false, phase: 'hidden', triggerTime: Date.now() };
+            victoryCam = { active: false, team: 1 };
+            updateVictoryCamUI();
+            updateOverlayStatusUI();
+            loadPlayerTuning();
+            loadPlayerTuningReveal();
+            await resetDraftInternal();
+        }
+
+        async function resetDraftInternal() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            currentStep = 0; timeLeft = 60; activeIds = []; selectionIds = [];
+            renderEmptySlots();
+            updatePhaseDisplay();
+            updateSetupFields();
+            refreshHeroGridState();
+            await saveAll();
+        }
+
+        function toggleCombatCams() {
+            camsVisible = !camsVisible;
+            updateCombatUI();
+            saveAll();
+        }
+
+        function updateCombatUI() {
+            const btn = document.getElementById('combat-btn');
+            btn.innerText = camsVisible ? '👁️ CAM: ON' : '🙈 CAM: OFF';
+            btn.style.background = camsVisible ? '#28a745' : '#dc3545';
+        }
+
+        function updateTuningValues() {
+            const z = document.getElementById('tune-zoom').value;
+            const x = document.getElementById('tune-offx').value;
+            const y = document.getElementById('tune-offy').value;
+            
+            document.getElementById(`val-zoom`).innerText = z;
+            document.getElementById(`val-offx`).innerText = x;
+            document.getElementById(`val-offy`).innerText = y;
+            
+            // Update preview on admin page
+            const prevImg = document.getElementById('prev-tune-photo');
+            prevImg.style.transform = `scale(${z/100})`;
+            prevImg.style.objectPosition = `${x}% ${y}%`;
+            
+            // Auto-apply to main HUD (Debounced or silent)
+            applyPlayerTuning(true);
+        }
+
+        function loadPlayerTuning() {
+            const key = document.getElementById('tune-player-select').value;
+            const cfg = playerTuning[key] || { zoom: 100, offx: 50, offy: 50 };
+            document.getElementById('tune-zoom').value = cfg.zoom;
+            document.getElementById('tune-offx').value = cfg.offx;
+            document.getElementById('tune-offy').value = cfg.offy;
+            
+            // Update Preview Labels & Image
+            document.getElementById(`val-zoom`).innerText = cfg.zoom;
+            document.getElementById(`val-offx`).innerText = cfg.offx;
+            document.getElementById(`val-offy`).innerText = cfg.offy;
+            
+            const prevImg = document.getElementById('prev-tune-photo');
+            const prevHero = document.getElementById('prev-tune-hero');
+
+            // Find current player photo and hero
+            const teamPrefix = key.split('_')[0]; // t1 or t2
+            const pIdx = parseInt(key.split('_p')[1]);
+            prevImg.src = teamData[teamPrefix].playerPhotos[pIdx] || "";
+            
+            // Try to find hero photo from the draft slots if possible
+            const slotData = getSlotData(key); // Already a helper function
+            if(slotData.heroId) prevHero.src = `images/${slotData.heroId}`;
+            else prevHero.src = "";
+
+            prevImg.style.transform = `scale(${cfg.zoom/100})`;
+            prevImg.style.objectPosition = `${cfg.offx}% ${cfg.offy}%`;
+        }
+
+        function applyPlayerTuning(isAuto = false) {
+            const key = document.getElementById('tune-player-select').value;
+            playerTuning[key] = {
+                zoom: parseInt(document.getElementById('tune-zoom').value),
+                offx: parseInt(document.getElementById('tune-offx').value),
+                offy: parseInt(document.getElementById('tune-offy').value)
+            };
+            saveAll();
+
+            if(!isAuto) {
+                const btn = document.getElementById('save-tuning-btn');
+                flashButton(btn);
+            }
+        }
+
+        // --- REVEAL TUNING FUNCTIONS ---
+        function updateTuningValuesReveal() {
+            const z = document.getElementById('tune-zoom-rev').value;
+            const x = document.getElementById('tune-offx-rev').value;
+            const y = document.getElementById('tune-offy-rev').value;
+            
+            document.getElementById(`val-zoom-rev`).innerText = z;
+            document.getElementById(`val-offx-rev`).innerText = x;
+            document.getElementById(`val-offy-rev`).innerText = y;
+            
+            const prevImg = document.getElementById('prev-tune-photo-rev');
+            prevImg.style.transform = `scale(${z/100})`;
+            prevImg.style.objectPosition = `${x}% ${y}%`;
+            
+            applyPlayerTuningReveal(true);
+        }
+
+        function loadPlayerTuningReveal() {
+            const key = document.getElementById('tune-player-select-rev').value;
+            const cfg = revealTuning[key] || { zoom: 100, offx: 50, offy: 50 };
+            document.getElementById('tune-zoom-rev').value = cfg.zoom;
+            document.getElementById('tune-offx-rev').value = cfg.offx;
+            document.getElementById('tune-offy-rev').value = cfg.offy;
+            
+            document.getElementById(`val-zoom-rev`).innerText = cfg.zoom;
+            document.getElementById(`val-offx-rev`).innerText = cfg.offx;
+            document.getElementById(`val-offy-rev`).innerText = cfg.offy;
+            
+            const prevImg = document.getElementById('prev-tune-photo-rev');
+            const prevHero = document.getElementById('prev-tune-hero-rev');
+
+            const teamPrefix = key.split('_')[0];
+            const pIdx = parseInt(key.split('_p')[1]);
+            prevImg.src = teamData[teamPrefix].playerPhotos[pIdx] || "";
+            
+            const slotData = getSlotData(key);
+            if(slotData.heroId) prevHero.src = `images/${slotData.heroId}`;
+            else prevHero.src = "";
+
+            prevImg.style.transform = `scale(${cfg.zoom/100})`;
+            prevImg.style.objectPosition = `${cfg.offx}% ${cfg.offy}%`;
+        }
+
+        function applyPlayerTuningReveal(isAuto = false) {
+            const key = document.getElementById('tune-player-select-rev').value;
+            revealTuning[key] = {
+                zoom: parseInt(document.getElementById('tune-zoom-rev').value),
+                offx: parseInt(document.getElementById('tune-offx-rev').value),
+                offy: parseInt(document.getElementById('tune-offy-rev').value)
+            };
+            saveAll();
+
+            if(!isAuto) {
+                const btn = document.getElementById('save-tuning-btn-rev');
+                flashButton(btn);
+            }
+        }
+
+        function flashButton(btn) {
+            const oldText = btn.innerHTML;
+            const oldBg = btn.style.background;
+            const oldColor = btn.style.color;
+            btn.innerHTML = "✅ ĐÃ LƯU ✓";
+            btn.style.background = "#28a745";
+            btn.style.color = "#fff";
+            setTimeout(() => {
+                btn.innerHTML = oldText;
+                btn.style.background = oldBg;
+                btn.style.color = oldColor;
+            }, 1000);
+        }
+
+        init();
+    </script>
+</body>
+</html>

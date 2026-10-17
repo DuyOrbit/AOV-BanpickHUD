@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AOV TOURNAMENT HUD - BROADCAST PRO</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- REVEAL OVERLAY (ORIGINAL SLIDING ROWS) -->
+    <div id="reveal-overlay">
+        <div class="reveal-row top" id="grid-t2-reveal"></div>
+        <div class="reveal-row bottom" id="grid-t1-reveal"></div>
+    </div>
+
+    <!-- IN-GAME HUD OVERLAY -->
+    <div id="ingame-hud">
+        <div class="ingame-top">
+            <div class="ig-team-side left">
+                <img class="ig-logo" id="ig-logo-t1">
+                <div class="ig-name" id="ig-name-t1">TEAM 1</div>
+            </div>
+            <div class="ig-score-center">
+                <div class="ig-score-val" id="ig-score-t1">0</div>
+                <div class="ig-score-label" id="ig-match-stage">BEST OF 5</div>
+                <div class="ig-score-val" id="ig-score-t2">0</div>
+            </div>
+            <div class="ig-team-side right">
+                <img class="ig-logo" id="ig-logo-t2">
+                <div class="ig-name" id="ig-name-t2">TEAM 2</div>
+            </div>
+        </div>
+
+        <div class="ig-cam-card left">
+            <div class="ig-player-frame left">
+                <img class="ig-cam-img" id="ig-cam-t1">
+            </div>
+            <div class="ig-cam-label left">
+                <div class="ig-player-name" id="ig-cam-name-t1">PLAYER NAME</div>
+            </div>
+        </div>
+
+        <div class="ig-cam-card right">
+            <div class="ig-player-frame right">
+                <img class="ig-cam-img" id="ig-cam-t2">
+            </div>
+            <div class="ig-cam-label right">
+                <div class="ig-player-name" id="ig-cam-name-t2">PLAYER NAME</div>
+            </div>
+        </div>
+
+        <div class="ingame-bottom">
+            <div class="ig-event-text" id="ig-event-text">ARENA OF GLORY SPRING 2026</div>
+        </div>
+
+        <!-- 5-CAM VICTORY CELEBRATION / PUSH BAR (WHEN A TEAM IS ABOUT TO WIN) -->
+        <div class="ig-victory-bar" id="ig-victory-bar">
+            <div class="victory-wing left">
+                <div class="victory-logo-box">
+                    <img id="victory-team-logo" class="victory-team-logo" alt="Logo">
+                </div>
+                <div class="victory-team-info">
+                    <div class="victory-status-tag" id="victory-status-tag">MATCH POINT MOMENT</div>
+                    <div class="victory-team-name" id="victory-team-name">TEAM 1</div>
+                </div>
+            </div>
+
+            <div class="victory-cams-row" id="victory-cams-row"></div>
+
+            <div class="victory-wing right">
+                <div class="victory-tag-box" id="victory-tag-box">
+                    <span class="victory-accent-tag" id="victory-accent-tag">VICTORY PUSH</span>
+                </div>
+            </div>
+
+            <div class="victory-bottom-ribbon">
+                <span class="victory-event-label" id="victory-event-label">ARENA OF GLORY SPRING 2026</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="hud-container">
+        <!-- UPPER CORNERS: LAST PICK (GLOBAL BAN PICK) -->
+        <div class="global-bans-hud left" id="draft-global-bans-t1"></div>
+        <div class="global-bans-hud right" id="draft-global-bans-t2"></div>
+
+        <!-- UPPER DRAFT HEADER RIBBON (TEAM WINGS + SCORES + 4 BANS + STAGE PILL) -->
+        <div class="draft-top-ribbon">
+            <div class="ribbon-side left">
+                <div class="team-wing t1">
+                    <div class="wing-logo-box">
+                        <img class="wing-team-logo" id="draft-logo-t1" alt="T1">
+                    </div>
+                    <div class="wing-team-info">
+                        <div class="wing-team-tag">BLUE SIDE</div>
+                        <div class="wing-team-name" id="draft-team-name-t1">TEAM 1</div>
+                    </div>
+                </div>
+                <div class="team-score-box t1">
+                    <span id="draft-score-t1">0</span>
+                </div>
+                <div class="bans-bottom-aligned left" id="draft-bans-t1"></div>
+            </div>
+
+            <div class="center-stage-pill">
+                <div class="stage-pill-inner">
+                    <span class="center-stage-name" id="draft-stage-label">GROUP STAGE 1</span>
+                    <span class="stage-pill-sep">//</span>
+                    <span class="center-series-type" id="draft-series-label">BO3 SERIES</span>
+                </div>
+            </div>
+
+            <div class="ribbon-side right">
+                <div class="bans-bottom-aligned right" id="draft-bans-t2"></div>
+                <div class="team-score-box t2">
+                    <span id="draft-score-t2">0</span>
+                </div>
+                <div class="team-wing t2">
+                    <div class="wing-team-info">
+                        <div class="wing-team-tag">RED SIDE</div>
+                        <div class="wing-team-name" id="draft-team-name-t2">TEAM 2</div>
+                    </div>
+                    <div class="wing-logo-box">
+                        <img class="wing-team-logo" id="draft-logo-t2" alt="T2">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FULL-WIDTH SMOOTH 60FPS FLOWING TIMER BAR -->
+        <div class="timer-bar-outer">
+            <div class="timer-side"><div class="timer-fill left" id="timer-bar-l"></div></div>
+            <div class="timer-side"><div class="timer-fill right" id="timer-bar-r"></div></div>
+        </div>
+
+        <!-- BOTTOM DRAFT BAR: 5 TALL PICKS LEFT + NARROW VERTICAL PILLAR + 5 TALL PICKS RIGHT -->
+        <div class="bottom-draft-bar">
+            <div class="picks-half t1" id="draft-picks-t1"></div>
+            
+            <div class="center-pillar-divider">
+                <div class="pillar-crest">
+                    <svg viewBox="0 0 24 24" width="22" height="22">
+                        <path d="M12 2L15.5 8.5L22 9.5L17 14.5L18.5 21L12 17.5L5.5 21L7 14.5L2 9.5L8.5 8.5L12 2Z" fill="url(#goldGrad)" stroke="#fff" stroke-width="0.6"/>
+                        <defs>
+                            <linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%" stop-color="#fff2a8"/>
+                                <stop offset="50%" stop-color="#ffcc00"/>
+                                <stop offset="100%" stop-color="#b87700"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="pillar-vertical-track">
+                    <span class="pillar-vertical-text" id="draft-pillar-label">ARENA OF VALOR</span>
+                </div>
+                <div class="pillar-timer-box">
+                    <div class="pillar-timer-label">TIME</div>
+                    <div class="center-timer-text" id="draft-timer-val">60s</div>
+                </div>
+            </div>
+
+            <div class="picks-half t2" id="draft-picks-t2"></div>
+        </div>
+    </div>
+
+    <script>
+        const DEFAULT_PLAYER_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(`
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 320" width="300" height="320">
+                <defs>
+                    <radialGradient id="bg" cx="50%" cy="40%" r="70%">
+                        <stop offset="0%" stop-color="#1e2638"/>
+                        <stop offset="100%" stop-color="#090c14"/>
+                    </radialGradient>
+                    <linearGradient id="sil" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#3a465e"/>
+                        <stop offset="100%" stop-color="#141923"/>
+                    </linearGradient>
+                </defs>
+                <rect width="300" height="320" fill="url(#bg)"/>
+                <circle cx="150" cy="105" r="46" fill="url(#sil)" stroke="rgba(255,204,0,0.25)" stroke-width="2"/>
+                <path d="M45 310 C45 205 100 175 150 175 C200 175 255 205 255 310 Z" fill="url(#sil)" stroke="rgba(255,204,0,0.25)" stroke-width="2"/>
+                <path d="M115 182 L150 235 L185 182" fill="none" stroke="rgba(255,204,0,0.35)" stroke-width="3"/>
+            </svg>
+        `);
+
+        const DEFAULT_LOGO_BLUE_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(`
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                <polygon points="50,6 90,22 80,74 50,94 20,74 10,22" fill="#0d2240" stroke="#007bff" stroke-width="5"/>
+                <text x="50" y="60" font-family="Arial, sans-serif" font-weight="900" font-size="28" fill="#00a2ff" text-anchor="middle">T1</text>
+            </svg>
+        `);
+
+        const DEFAULT_LOGO_RED_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(`
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                <polygon points="50,6 90,22 80,74 50,94 20,74 10,22" fill="#3a1015" stroke="#ff3e3e" stroke-width="5"/>
+                <text x="50" y="60" font-family="Arial, sans-serif" font-weight="900" font-size="28" fill="#ff5e5e" text-anchor="middle">T2</text>
+            </svg>
+        `);
+        
+        // GLOBAL STATE
+        let heroesList = [];
+        let heroNameMap = {};
+        let lastTimer = 0;
+        let lastSyncedStep = -1;
+        let syncedTimerVal = 60;
+        let smoothRemaining = 60;
+        let isTimerRunning = false;
+        let isRefilling = false;
+        let lastFramePerf = performance.now();
+        let currentPlayerIndex = 0;
+        let lastPlayerRotateTime = Date.now();
+        let currentRevealPhase = 'hidden';
+        let revealPhaseTimeout = null;
+        let lastTriggerTime = 0;
+        let bgm = new Audio('music/banpick.mp3');
+        bgm.loop = true;
+        let isMutedManually = false;
+
+        // FETCH HEROES DATABASE ONCE
+        fetch('heroes.json')
+            .then(res => res.json())
+            .then(data => {
+                heroesList = data;
+                data.forEach(h => { heroNameMap[h.id] = h.name; });
+                console.log("Hero database loaded:", heroesList.length, "heroes.");
+            })
+            .catch(e => console.error("Could not load heroes.json", e));
+
+        // CONTINUOUS 60FPS SMOOTH TIMER BAR LOOP
+        function animateSmoothTimer(now) {
+            const dt = Math.max(0, Math.min(0.2, (now - lastFramePerf) / 1000));
+            lastFramePerf = now;
+
+            const barL = document.getElementById('timer-bar-l');
+            const barR = document.getElementById('timer-bar-r');
+            if (barL && barR) {
+                if (isRefilling) {
+                    // Glide directly from current position out to the 2 edges (60s / 100%) without dropping to 0
+                    const stepUp = Math.max(90 * dt, (60 - smoothRemaining) * 12 * dt);
+                    smoothRemaining = Math.min(60, smoothRemaining + stepUp);
+                    if (smoothRemaining >= 59.98) {
+                        smoothRemaining = 60;
+                        isRefilling = false;
+                    }
+                } else if (isTimerRunning && smoothRemaining > 0) {
+                    smoothRemaining = Math.max(0, smoothRemaining - dt);
+                } else if (!isTimerRunning) {
+                    smoothRemaining = syncedTimerVal;
+                }
+                const pct = Math.max(0, Math.min(100, (smoothRemaining / 60) * 100));
+                barL.style.width = `${pct.toFixed(4)}%`;
+                barR.style.width = `${pct.toFixed(4)}%`;
+            }
+            requestAnimationFrame(animateSmoothTimer);
+        }
+        requestAnimationFrame(animateSmoothTimer);
+
+        async function poll() {
+            try {
+                const resp = await fetch('/get');
+                const result = await resp.json();
+                const data = result.state || {};
+                const masterConfigs = result.heroConfigs || {};
+                
+                if(data.teamData) {
+                    syncHUD(data, masterConfigs);
+                    syncReveal(data, masterConfigs);
+                    syncIngame(data);
+                }
+            } catch (e) {
+                // Ignore periodic sync errors
+            }
+
+            if (Date.now() - lastPlayerRotateTime > 10000) {
+                currentPlayerIndex = (currentPlayerIndex + 1) % 5;
+                lastPlayerRotateTime = Date.now();
+            }
+        }
+
+        setInterval(poll, 200);
+
+        function syncHUD(data, masterConfigs) {
+            const hud = document.getElementById('hud-container');
+            const isVisible = !!data.hudVisible;
+            hud.classList.toggle('active-draft', isVisible);
+            
+            if(data.musicPlaying && bgm.paused && !isMutedManually) {
+                bgm.volume = 1; 
+                bgm.play().catch(e => {});
+            } else if(!data.musicPlaying && !bgm.paused) { bgm.pause(); }
+
+            const td = data.teamData;
+            document.getElementById('draft-team-name-t1').innerText = td.t1.name;
+            document.getElementById('draft-team-name-t2').innerText = td.t2.name;
+            document.getElementById('draft-logo-t1').src = td.t1.logo || DEFAULT_LOGO_BLUE_SVG;
+            document.getElementById('draft-logo-t2').src = td.t2.logo || DEFAULT_LOGO_RED_SVG;
+            document.getElementById('draft-score-t1').innerText = td.t1.score;
+            document.getElementById('draft-score-t2').innerText = td.t2.score;
+            
+            const timerVal = (data.timer !== undefined) ? data.timer : 60;
+            const runningFlag = !!data.timerRunning;
+            const stepVal = (data.currentStep !== undefined) ? data.currentStep : 0;
+
+            const turnResetToFull = (timerVal === 60 && (lastTimer !== 60 || (lastSyncedStep !== -1 && stepVal !== lastSyncedStep)));
+            if (turnResetToFull && smoothRemaining < 59.9) {
+                // Expand outward from current position directly to 100%
+                isRefilling = true;
+            }
+
+            if (timerVal !== syncedTimerVal || runningFlag !== isTimerRunning) {
+                if (!isRefilling) {
+                    if (!runningFlag && timerVal !== 60) {
+                        smoothRemaining = timerVal;
+                    } else if (timerVal > syncedTimerVal) {
+                        isRefilling = true;
+                    } else if (Math.abs(smoothRemaining - timerVal) > 2.0) {
+                        smoothRemaining = timerVal;
+                    }
+                }
+                syncedTimerVal = timerVal;
+                isTimerRunning = runningFlag;
+            }
+            lastTimer = timerVal;
+            lastSyncedStep = stepVal;
+
+            const timerTextEl = document.getElementById('draft-timer-val');
+            if (timerTextEl) {
+                timerTextEl.innerText = `${String(timerVal).padStart(2, '0')}s`;
+                timerTextEl.style.color = timerVal <= 10 ? '#ff2a54' : '#ffcc00';
+            }
+
+            const stageStr = (data.stage !== undefined) ? data.stage.trim() : "GROUP STAGE 1";
+            const seriesStr = (data.seriesType !== undefined) ? data.seriesType.trim() : "";
+            
+            const stageLabel = document.getElementById('draft-stage-label');
+            const seriesLabel = document.getElementById('draft-series-label');
+            const stageSep = document.querySelector('.stage-pill-sep');
+            const stagePill = document.querySelector('.center-stage-pill');
+
+            if (stageLabel) stageLabel.innerText = stageStr;
+            if (seriesLabel) {
+                seriesLabel.innerText = seriesStr;
+                seriesLabel.style.display = seriesStr ? 'inline' : 'none';
+            }
+            if (stageSep) {
+                stageSep.style.display = (stageStr && seriesStr) ? 'inline' : 'none';
+            }
+            if (stagePill) {
+                stagePill.style.display = (!stageStr && !seriesStr) ? 'none' : 'flex';
+            }
+
+            const pillarLabel = document.getElementById('draft-pillar-label');
+            if (pillarLabel) {
+                pillarLabel.innerText = seriesStr || stageStr || "";
+                pillarLabel.style.display = (seriesStr || stageStr) ? 'block' : 'none';
+            }
+
+            renderDraftSlots(data, masterConfigs);
+            renderGlobalBansHUD(data);
+        }
+
+        let slotCache = {};
+        let globalBanCache = { t1: '', t2: '' };
+
+        function getBanIconPath(heroId) {
+            if (!heroId) return '';
+            const hero = (heroesList && heroesList.length > 0) ? heroesList.find(h => h.id === heroId) : null;
+            if (hero) {
+                let searchName = hero.name;
+                if (searchName === "Zanis") searchName = "Tri\u1ec7u V\u00e2n";
+                const encodedName = encodeURIComponent(searchName);
+                return `images/ban/${encodedName}.jpg`;
+            }
+            return `images/${heroId}`;
+        }
+
+        function renderGlobalBansHUD(data) {
+            const heroDbReady = !!(heroesList && heroesList.length > 0);
+            const isEnabled = data.globalBanEnabled !== false;
+            const td = data.teamData || {};
+
+            ['t1', 't2'].forEach(teamKey => {
+                const container = document.getElementById(`draft-global-bans-${teamKey}`);
+                if (!container) return;
+
+                const hist = (td[teamKey] && Array.isArray(td[teamKey].history)) ? td[teamKey].history : [];
+                const validGames = hist.filter(g => Array.isArray(g) && g.length > 0);
+
+                if (!isEnabled || validGames.length === 0) {
+                    if (globalBanCache[teamKey] !== 'EMPTY') {
+                        globalBanCache[teamKey] = 'EMPTY';
+                        container.innerHTML = '';
+                        container.style.display = 'none';
+                    }
+                    return;
+                }
+
+                const sig = `${heroDbReady}|${JSON.stringify(validGames)}`;
+                if (globalBanCache[teamKey] === sig) return;
+                globalBanCache[teamKey] = sig;
+                container.style.display = 'flex';
+
+                const rowsHTML = validGames.map((gamePicks, gIdx) => {
+                    const iconsHTML = gamePicks.map(hId => {
+                        const iconSrc = getBanIconPath(hId);
+                        return `
+                            <div class="gban-hud-icon" title="${heroNameMap[hId] || hId}">
+                                <img src="${iconSrc}" onerror="this.onerror=null;this.src='images/${hId}'">
+                            </div>
+                        `;
+                    }).join('');
+                    return `
+                        <div class="gban-hud-group ${teamKey}">
+                            <div class="gban-hud-tag">G${gIdx + 1}</div>
+                            <div class="gban-hud-icons">${iconsHTML}</div>
+                        </div>
+                    `;
+                }).join('');
+
+                container.innerHTML = `
+                    <div class="gban-hud-header ${teamKey}">
+                        <span>LAST PICK</span>
+                    </div>
+                    <div class="gban-hud-rows">
+                        ${rowsHTML}
+                    </div>
+                `;
+            });
+        }
+
+        function renderDraftSlots(data, masterConfigs) {
+            const t1Picks = document.getElementById('draft-picks-t1');
+            const t2Picks = document.getElementById('draft-picks-t2');
+            const t1Bans = document.getElementById('draft-bans-t1');
+            const t2Bans = document.getElementById('draft-bans-t2');
+
+            const roles = ['top', 'jg', 'mid', 'ad', 'sp'];
+
+            // Ensure containers have initial child wrappers so we can update individual slots without resetting sibling animations
+            if (t1Picks.children.length !== 5) {
+                t1Picks.innerHTML = ''; t2Picks.innerHTML = '';
+                slotCache = {};
+                for (let i = 0; i < 5; i++) {
+                    const w1 = document.createElement('div'); w1.id = `wrap-t1_p${i}`; w1.style.display = 'contents';
+                    const w2 = document.createElement('div'); w2.id = `wrap-t2_p${i}`; w2.style.display = 'contents';
+                    t1Picks.appendChild(w1);
+                    t2Picks.appendChild(w2);
+                }
+            }
+            if (t1Bans.children.length !== 4) {
+                t1Bans.innerHTML = ''; t2Bans.innerHTML = '';
+                for (let i = 1; i <= 4; i++) {
+                    const b1 = document.createElement('div'); b1.id = `wrap-t1_ban${i}`; b1.style.display = 'contents';
+                    const b2 = document.createElement('div'); b2.id = `wrap-t2_ban${i}`; b2.style.display = 'contents';
+                    t1Bans.appendChild(b1);
+                    t2Bans.appendChild(b2);
+                }
+            }
+
+            const heroDbReady = heroesList && heroesList.length > 0;
+
+            for(let i=0; i<5; i++) {
+                updatePickSlotDOM('t1', i, data[`t1_p${i}`], masterConfigs, roles[i]);
+                updatePickSlotDOM('t2', i, data[`t2_p${i}`], masterConfigs, roles[i]);
+            }
+            for(let i=1; i<=4; i++) {
+                updateBanSlotDOM('t1', i, data[`t1_ban${i}`], heroDbReady);
+                updateBanSlotDOM('t2', i, data[`t2_ban${i}`], heroDbReady);
+            }
+        }
+
+        function updatePickSlotDOM(team, idx, slot, masterConfigs, role) {
+            const key = `${team}_p${idx}`;
+            const wrap = document.getElementById(`wrap-${key}`);
+            if (!wrap || !slot) return;
+            const heroId = slot.heroId || '';
+            const cfg = masterConfigs[heroId] || { zoom: 100, offx: 50, offy: 20 };
+            const sig = `${heroId}|${!!slot.locked}|${!!slot.drafting}|${slot.playerName || ''}|${cfg.zoom}|${cfg.offx}|${cfg.offy}`;
+            if (slotCache[key] === sig) return;
+            slotCache[key] = sig;
+            wrap.innerHTML = createPickHTML(team, idx, slot, masterConfigs, role);
+        }
+
+        function updateBanSlotDOM(team, idx, slot, heroDbReady) {
+            const key = `${team}_ban${idx}`;
+            const wrap = document.getElementById(`wrap-${key}`);
+            if (!wrap || !slot) return;
+            const heroId = slot.heroId || '';
+            const sig = `${heroId}|${!!slot.locked}|${!!slot.drafting}|${heroDbReady}`;
+            if (slotCache[key] === sig) return;
+            slotCache[key] = sig;
+            wrap.innerHTML = createBanHTML(team, slot, idx);
+        }
+
+        function createPickHTML(team, idx, slot, masterConfigs, role) {
+            if(!slot) return '';
+            const heroId = slot.heroId;
+            const cfg = masterConfigs[heroId] || { zoom: 100, offx: 50, offy: 20 };
+            const imgStyle = heroId ? `transform: scale(${cfg.zoom/100}); object-position: ${cfg.offx}% ${cfg.offy}%` : 'opacity:0';
+            const lockedClass = slot.locked ? 'locked' : '';
+            const pulseClass = slot.drafting ? (team === 't1' ? 'drafting-blue' : 'drafting-red') : '';
+            const hoverClass = (heroId && !slot.locked) ? 'unlocked-hover' : '';
+            const activeClass = heroId ? 'active' : '';
+
+            let displayName = slot.playerName || role.toUpperCase();
+            if (displayName.startsWith('P') && !isNaN(displayName.substring(1))) {
+                displayName = `${team.toUpperCase()} ${role.toUpperCase()}`;
+            }
+
+            const heroImgTag = heroId
+                ? `<img src="images/${heroId}" class="pick-hero-img-full ${activeClass}" style="${imgStyle}">`
+                : '';
+
+            return `
+                <div class="pick-slot-horiz ${team} ${lockedClass} ${pulseClass} ${hoverClass}">
+                    <div class="role-corner-badge">
+                        <div class="role-icon-crop">
+                            <img src="images/${role}.jpg" alt="${role}">
+                        </div>
+                        <span class="role-text-badge">${role.toUpperCase()}</span>
+                    </div>
+                    ${heroImgTag}
+                    <div class="pick-pulse-overlay"></div>
+                    <div class="pick-label-bottom">
+                        <span class="pick-label-text">${displayName}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createBanHTML(team, slot, idx) {
+            if(!slot) return '';
+            const heroId = slot.heroId;
+            const lockedClass = slot.locked ? 'locked' : '';
+            const pulseClass = slot.drafting ? (team === 't1' ? 'drafting-blue' : 'drafting-red') : '';
+            const hoverClass = (heroId && !slot.locked) ? 'unlocked-hover' : '';
+            
+            let banPath = '';
+            if (heroId) {
+                const hero = (heroesList && heroesList.length > 0) ? heroesList.find(h => h.id === heroId) : null;
+                if (hero) {
+                    let searchName = hero.name;
+                    if (searchName === "Zanis") searchName = "Tri\u1ec7u V\u00e2n";
+                    const encodedName = encodeURIComponent(searchName);
+                    banPath = `images/ban/${encodedName}.jpg`;
+                } else {
+                    banPath = `images/${heroId}`;
+                }
+            }
+
+            const banImgTag = banPath
+                ? `<img src="${banPath}" class="ban-hero-img" onerror="this.onerror=null;this.src='images/${heroId}'">`
+                : `<div class="ban-empty-emblem">
+                       <svg viewBox="0 0 24 24" width="22" height="22">
+                           <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm3.5 12.09l-1.41 1.41L12 13.41 9.91 15.5 8.5 14.09 10.59 12 8.5 9.91 9.91 8.5 12 10.59 14.09 8.5 15.5 9.91 13.41 12l2.09 2.09z" fill="currentColor"/>
+                       </svg>
+                   </div>`;
+
+            return `
+                <div class="ban-box-mini ${team} ${lockedClass} ${pulseClass} ${hoverClass}">
+                    ${banImgTag}
+                    <div class="ban-pulse-overlay"></div>
+                </div>
+            `;
+        }
+
+        function syncReveal(data, masterConfigs) {
+            const overlay = document.getElementById('reveal-overlay');
+            const rs = data.revealState || { active: false, phase: 'hidden', triggerTime: 0 };
+            const td = data.teamData;
+            const revTuning = data.revealTuning || {};
+
+            if (rs.triggerTime > lastTriggerTime) {
+                lastTriggerTime = rs.triggerTime;
+                if (rs.phase === 'players') {
+                    currentRevealPhase = 'hidden';
+                    overlay.className = ''; 
+                    renderRevealLogic(data, td, revTuning, masterConfigs);
+                    setTimeout(() => overlay.classList.add('active'), 50);
+                    
+                    if(revealPhaseTimeout) clearTimeout(revealPhaseTimeout);
+                    revealPhaseTimeout = setTimeout(() => {
+                        overlay.classList.add('phase-heroes');
+                        currentRevealPhase = 'heroes';
+                    }, 7000);
+                } else if (rs.phase === 'hidden') {
+                    if(revealPhaseTimeout) clearTimeout(revealPhaseTimeout);
+                    overlay.className = '';
+                    currentRevealPhase = 'hidden';
+                }
+            }
+
+            if (rs.phase === 'split' && currentRevealPhase !== 'split') {
+                overlay.classList.add('phase-heroes', 'phase-split');
+                currentRevealPhase = 'split';
+            } else if (rs.phase === 'hidden' && currentRevealPhase !== 'hidden') {
+                if(revealPhaseTimeout) clearTimeout(revealPhaseTimeout);
+                overlay.className = '';
+                currentRevealPhase = 'hidden';
+            }
+
+            document.querySelectorAll('.player-photo').forEach(img => {
+                const id = img.dataset.playerId;
+                if(id && revTuning[id]) {
+                    const cfg = revTuning[id];
+                    img.style.transform = `scale(${cfg.zoom/100})`;
+                    img.style.objectPosition = `${cfg.offx}% ${cfg.offy}%`;
+                }
+            });
+        }
+
+        function renderRevealLogic(data, td, revTuning, masterConfigs) {
+            const overlay = document.getElementById('reveal-overlay');
+            overlay.innerHTML = `
+                <div class="reveal-row top" id="rev-t2">
+                    <div class="reveal-team-name">${td.t2.name}</div>
+                </div>
+                <div class="reveal-row bottom" id="rev-t1">
+                    <div class="reveal-team-name">${td.t1.name}</div>
+                </div>
+            `;
+            const t1Box = document.getElementById('rev-t1');
+            const t2Box = document.getElementById('rev-t2');
+            for(let i=0; i<5; i++) {
+                const s1 = data[`t1_p${i}`] || {};
+                const s2 = data[`t2_p${i}`] || {};
+                t1Box.innerHTML += createCard('t1', i, td.t1.players[i], td.t1.playerPhotos[i], revTuning[`t1_p${i}`], s1.heroId, masterConfigs);
+                t2Box.innerHTML += createCard('t2', i, td.t2.players[i], td.t2.playerPhotos[i], revTuning[`t2_p${i}`], s2.heroId, masterConfigs);
+            }
+        }
+
+        function createCard(team, idx, pName, photo, tuning, heroId, masterConfigs) {
+            const cfg = tuning || { zoom: 100, offx: 50, offy: 50 };
+            const photoStyle = `transform: scale(${cfg.zoom/100}); object-position: ${cfg.offx}% ${cfg.offy}%`;
+            const heroCfg = (masterConfigs && heroId && masterConfigs[heroId]) ? masterConfigs[heroId] : { zoom: 100, offx: 50, offy: 20 };
+            const heroStyle = heroId 
+                ? `transform: scale(${heroCfg.zoom/100}); object-position: ${heroCfg.offx}% ${heroCfg.offy}%; width:100%; height:100%; object-fit:cover;`
+                : `width:100%; height:100%; object-fit:cover; opacity:0;`;
+            const heroName = heroId 
+                ? (heroNameMap[heroId] || heroId.replace(/\.[^.]+$/, '').split('_')[0]).toUpperCase() 
+                : "";
+            const backImgTag = heroId ? `<img src="images/${heroId}" style="${heroStyle}">` : '';
+            
+            return `
+                <div class="reveal-card">
+                    <div class="card-inner">
+                        <div class="card-face card-front">
+                            <div class="player-photo-container">
+                                <img src="${photo || DEFAULT_PLAYER_SVG}" class="player-photo" data-player-id="${team}_p${idx}" style="${photoStyle}">
+                            </div>
+                            <div class="card-label">
+                                <div class="p-reveal-name">${pName}</div>
+                            </div>
+                        </div>
+                        <div class="card-face card-back">
+                            <div class="player-photo-container">
+                                ${backImgTag}
+                            </div>
+                            <div class="card-label">
+                                <div class="h-reveal-name" style="font-size:22px; font-weight:900; color:#ffcc00;">${heroName}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function syncIngame(data) {
+            const td = data.teamData; if(!td) return;
+            document.getElementById('ig-name-t1').innerText = td.t1.name;
+            document.getElementById('ig-name-t2').innerText = td.t2.name;
+            document.getElementById('ig-logo-t1').src = td.t1.logo || DEFAULT_LOGO_BLUE_SVG;
+            document.getElementById('ig-logo-t2').src = td.t2.logo || DEFAULT_LOGO_RED_SVG;
+            document.getElementById('ig-score-t1').innerText = td.t1.score;
+            document.getElementById('ig-score-t2').innerText = td.t2.score;
+            document.getElementById('ig-match-stage').innerText = data.stage || "BEST OF 5";
+            const eventEl = document.getElementById('ig-event-text');
+            if (eventEl) eventEl.innerText = data.eventTitle || "ARENA OF GLORY SPRING 2026";
+
+            const cams = document.querySelectorAll('.ig-player-frame');
+            cams.forEach(c => { c.classList.toggle('combat-hidden', data.camsVisible === false); });
+
+            const pt = data.playerTuning || {};
+            updateCam(1, td.t1, td.t1.playerPhotos[currentPlayerIndex], pt[`t1_p${currentPlayerIndex}`]);
+            updateCam(2, td.t2, td.t2.playerPhotos[currentPlayerIndex], pt[`t2_p${currentPlayerIndex}`]);
+
+            syncVictoryCams(data);
+        }
+
+        let victoryCamCache = '';
+
+        function syncVictoryCams(data) {
+            const bar = document.getElementById('ig-victory-bar');
+            if (!bar) return;
+            const vc = data.victoryCam || { active: false, team: 1 };
+            const isActive = !!vc.active;
+            bar.classList.toggle('active', isActive);
+
+            const cornerCams = document.querySelectorAll('.ig-cam-card');
+            cornerCams.forEach(c => c.classList.toggle('victory-hidden', isActive));
+
+            if (!isActive) return;
+
+            const teamNum = (vc.team === 2 || vc.team === 't2') ? 2 : 1;
+            const teamKey = `t${teamNum}`;
+            const td = data.teamData || {};
+            const team = td[teamKey] || { name: `TEAM ${teamNum}`, players: ["P1","P2","P3","P4","P5"], playerPhotos: ["","","","",""] };
+            const pt = data.playerTuning || {};
+
+            bar.classList.toggle('team-t1', teamNum === 1);
+            bar.classList.toggle('team-t2', teamNum === 2);
+
+            document.getElementById('victory-team-logo').src = team.logo || (teamNum === 1 ? DEFAULT_LOGO_BLUE_SVG : DEFAULT_LOGO_RED_SVG);
+            document.getElementById('victory-team-name').innerText = team.name || `TEAM ${teamNum}`;
+            const acronymEl = document.getElementById('victory-team-acronym');
+            if (acronymEl) {
+                acronymEl.innerText = (team.name ? team.name.split(' ').map(w => w[0]).join('') : `T${teamNum}`).toUpperCase();
+            }
+            const eventEl = document.getElementById('victory-event-label');
+            if (eventEl) {
+                eventEl.innerText = data.eventTitle || "ARENA OF GLORY SPRING 2026";
+            }
+
+            const sig = `${teamNum}|${JSON.stringify(team.players)}|${JSON.stringify(team.playerPhotos)}|${JSON.stringify(pt)}`;
+            if (victoryCamCache === sig) return;
+            victoryCamCache = sig;
+
+            const camsRow = document.getElementById('victory-cams-row');
+            camsRow.innerHTML = [0, 1, 2, 3, 4].map(idx => {
+                const pName = (team.players && team.players[idx]) ? team.players[idx] : `PLAYER ${idx + 1}`;
+                const pPhoto = (team.playerPhotos && team.playerPhotos[idx]) ? team.playerPhotos[idx] : DEFAULT_PLAYER_SVG;
+                const tuningKey = `${teamKey}_p${idx}`;
+                const tune = pt[tuningKey] || { zoom: 100, offx: 50, offy: 50 };
+                const imgStyle = `transform: scale(${tune.zoom / 100}); object-position: ${tune.offx}% ${tune.offy}%;`;
+                return `
+                    <div class="victory-cam-slot">
+                        <div class="victory-cam-frame">
+                            <img src="${pPhoto}" class="victory-player-img" style="${imgStyle}">
+                        </div>
+                        <div class="victory-cam-nameplate">
+                            <span>${pName}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateCam(num, team, photo, tuning) {
+            const img = document.getElementById(`ig-cam-t${num}`);
+            const nameEl = document.getElementById(`ig-cam-name-t${num}`);
+            img.src = photo || DEFAULT_PLAYER_SVG;
+            nameEl.innerText = team.players[currentPlayerIndex] || "PLAYER";
+            if(tuning) {
+                img.style.transform = `scale(${tuning.zoom / 100})`;
+                img.style.objectPosition = `${tuning.offx}% ${tuning.offy}%`;
+            } else { img.style.transform = 'scale(1)'; img.style.objectPosition = '50% 50%'; }
+        }
+    </script>
+</body>
+</html>

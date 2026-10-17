@@ -1,0 +1,506 @@
+[
+    {
+        "id": "DYADIA.jpg",
+        "name": "Dyadia"
+    },
+    {
+        "id": "edras.jpg",
+        "name": "Edras"
+    },
+    {
+        "id": "goverra.jpg",
+        "name": "Goverra"
+    },
+    {
+        "id": "heino.jpg",
+        "name": "Heino"
+    },
+    {
+        "id": "Billow.jpg",
+        "name": "Billow"
+    },
+    {
+        "id": "boltbaron.jpg",
+        "name": "Bolt Baron"
+    },
+    {
+        "id": "biron-artwork.jpg",
+        "name": "Biron"
+    },
+    {
+        "id": "dolia.jpg",
+        "name": "Dolia"
+    },
+    {
+        "id": "charlotte.jpg",
+        "name": "Charlotte"
+    },
+    {
+        "id": "tachi.jpg",
+        "name": "Tachi"
+    },
+    {
+        "id": "dirak.jpg",
+        "name": "Dirak"
+    },
+    {
+        "id": "qi.jpg",
+        "name": "Qi"
+    },
+    {
+        "id": "erin.jpg",
+        "name": "Erin"
+    },
+    {
+        "id": "ming.jpg",
+        "name": "Ming"
+    },
+    {
+        "id": "bijan.jpg",
+        "name": "Bijan"
+    },
+    {
+        "id": "bonnie.jpg",
+        "name": "Bonnie"
+    },
+    {
+        "id": "teeri.jpg",
+        "name": "Teeri"
+    },
+    {
+        "id": "Yue_Splash_Art.webp",
+        "name": "Yue"
+    },
+    {
+        "id": "yan.jpg",
+        "name": "Yan"
+    },
+    {
+        "id": "aya.jpg",
+        "name": "Aya"
+    },
+    {
+        "id": "aoi.png",
+        "name": "Aoi"
+    },
+    {
+        "id": "iggy.jpeg",
+        "name": "Iggy"
+    },
+    {
+        "id": "Bright_Splash_Art.jpg",
+        "name": "Bright"
+    },
+    {
+        "id": "lorion.jpg",
+        "name": "Lorion"
+    },
+    {
+        "id": "Dextra_Splash_Art.webp",
+        "name": "Dextra"
+    },
+    {
+        "id": "Sinestrea_Splash_Art.jpg",
+        "name": "Sinestrea"
+    },
+    {
+        "id": "thorne.jpg",
+        "name": "Thorne"
+    },
+    {
+        "id": "Allain_Splash_Art.webp",
+        "name": "Allain"
+    },
+    {
+        "id": "zata.jpg",
+        "name": "Zata"
+    },
+    {
+        "id": "rouie.jpg",
+        "name": "Rouie"
+    },
+    {
+        "id": "laville.jpg",
+        "name": "Laville"
+    },
+    {
+        "id": "paine.jpg",
+        "name": "Paine"
+    },
+    {
+        "id": "Ata_Splash_Art.webp",
+        "name": "Ata"
+    },
+    {
+        "id": "keera.jpg",
+        "name": "Keera"
+    },
+    {
+        "id": "ishar.jpg",
+        "name": "Ishar"
+    },
+    {
+        "id": "Elandorr.jpg",
+        "name": "Eland’orr"
+    },
+    {
+        "id": "krizzix.jpg",
+        "name": "Krizzix"
+    },
+    {
+        "id": "Volkath_Splash_Art.webp",
+        "name": "Volkath"
+    },
+    {
+        "id": "celica.jpg",
+        "name": "Celica"
+    },
+    {
+        "id": "Zip_profile.webp",
+        "name": "Zip"
+    },
+    {
+        "id": "enzo.jpg",
+        "name": "Enzo"
+    },
+    {
+        "id": "yena.jpg",
+        "name": "Yena"
+    },
+    {
+        "id": "Errol_profile.webp",
+        "name": "Errol"
+    },
+    {
+        "id": "capheny.jpg",
+        "name": "Capheny"
+    },
+    {
+        "id": "hayate.jpg",
+        "name": "Hayate"
+    },
+    {
+        "id": "D'arcy.jpg",
+        "name": "D’Arcy"
+    },
+    {
+        "id": "veres.jpg",
+        "name": "Veres"
+    },
+    {
+        "id": "Florentino_Splash_Art.webp",
+        "name": "Florentino"
+    },
+    {
+        "id": "sephera.jpg",
+        "name": "Sephera"
+    },
+    {
+        "id": "quillen.jpg",
+        "name": "Quillen"
+    },
+    {
+        "id": "Wiro_profile.webp",
+        "name": "Wiro"
+    },
+    {
+        "id": "richter.jpg",
+        "name": "Richter"
+    },
+    {
+        "id": "Elsu_Splash_Art.webp",
+        "name": "Elsu"
+    },
+    {
+        "id": "Ybneth_Splash_Art.webp",
+        "name": "Y’bneth"
+    },
+    {
+        "id": "Amily_profile.webp",
+        "name": "Amily"
+    },
+    {
+        "id": "annette.jpg",
+        "name": "Annette"
+    },
+    {
+        "id": "Baldum_Splash_Art.webp",
+        "name": "Baldum"
+    },
+    {
+        "id": "Roxie_avatar.webp",
+        "name": "Roxie"
+    },
+    {
+        "id": "marja.jpg",
+        "name": "Marja"
+    },
+    {
+        "id": "rourke.jpg",
+        "name": "Rourke"
+    },
+    {
+        "id": "Arum_Full.webp",
+        "name": "Arum"
+    },
+    {
+        "id": "Wisp_Default.webp",
+        "name": "Wisp"
+    },
+    {
+        "id": "Flash_Avatar.webp",
+        "name": "The Flash"
+    },
+    {
+        "id": "Max_Default.webp",
+        "name": "Max"
+    },
+    {
+        "id": "liliana.jpg",
+        "name": "Liliana"
+    },
+    {
+        "id": "Tulen.webp",
+        "name": "Tulen"
+    },
+    {
+        "id": "Omen_profile.webp",
+        "name": "Omen"
+    },
+    {
+        "id": "Lindis_Default.webp",
+        "name": "Lindis"
+    },
+    {
+        "id": "TeeMee_Splash_Art.webp",
+        "name": "TeeMee"
+    },
+    {
+        "id": "Moren_Splash_Art.webp",
+        "name": "Moren"
+    },
+    {
+        "id": "KilGroth_Splash.webp",
+        "name": "Kil’Groth"
+    },
+    {
+        "id": "Xeniel_Default.webp",
+        "name": "Xeniel"
+    },
+    {
+        "id": "Wonder_Woman_Splash_Art.webp",
+        "name": "Wonder Woman"
+    },
+    {
+        "id": "Superman_Splash_Art.webp",
+        "name": "Superman"
+    },
+    {
+        "id": "TelAnnas_Splash_Art.webp",
+        "name": "Tel’Annas"
+    },
+    {
+        "id": "Astrid_Splash_Art.webp",
+        "name": "Astrid"
+    },
+    {
+        "id": "Ryoma_Splash_Art.webp",
+        "name": "Ryoma"
+    },
+    {
+        "id": "stuart.jpg",
+        "name": "Stuart"
+    },
+    {
+        "id": "Arduin_Splash_Art.webp",
+        "name": "Arduin"
+    },
+    {
+        "id": "Zill_Splash_Art.webp",
+        "name": "Zill"
+    },
+    {
+        "id": "Murad_Splash_Art.webp",
+        "name": "Murad"
+    },
+    {
+        "id": "Ignis_Splash_Art.webp",
+        "name": "Ignis"
+    },
+    {
+        "id": "Zuka_Splash_Art.webp",
+        "name": "Zuka"
+    },
+    {
+        "id": "Airi_Splash_Art.webp",
+        "name": "Airi"
+    },
+    {
+        "id": "Kaine_Splash_Art.webp",
+        "name": "Kaine"
+    },
+    {
+        "id": "Lauriel_Splash.webp",
+        "name": "Lauriel"
+    },
+    {
+        "id": "Raz_Splash_Art.webp",
+        "name": "Raz"
+    },
+    {
+        "id": "Skud_Splash_Art.webp",
+        "name": "Skud"
+    },
+    {
+        "id": "Preyta_Splash_Art.webp",
+        "name": "Preyta"
+    },
+    {
+        "id": "Ilumia_Splash_Art.webp",
+        "name": "Ilumia"
+    },
+    {
+        "id": "Slimz_Splash_Art.webp",
+        "name": "Slimz"
+    },
+    {
+        "id": "Arthur_Splash_Art.webp",
+        "name": "Arthur"
+    },
+    {
+        "id": "Kriknak_Splash_Art.webp",
+        "name": "Kriknak"
+    },
+    {
+        "id": "Wukong_Splash_Art.webp",
+        "name": "Ngộ Không"
+    },
+    {
+        "id": "Maloch_Splash_Art.webp",
+        "name": "Maloch"
+    },
+    {
+        "id": "helen.jpg",
+        "name": "Helen"
+    },
+    {
+        "id": "Jinnar_Splash_Art.webp",
+        "name": "Jinna"
+    },
+    {
+        "id": "Cresht_Splash_Art.webp",
+        "name": "Cresht"
+    },
+    {
+        "id": "Natalya_Splash_Art.webp",
+        "name": "Natalya"
+    },
+    {
+        "id": "Lumburr_Splash.webp",
+        "name": "Lumburr"
+    },
+    {
+        "id": "fennik.jpg",
+        "name": "Fennik"
+    },
+    {
+        "id": "aleister.jpg",
+        "name": "Aleister"
+    },
+    {
+        "id": "Grakk_Splash_Art.webp",
+        "name": "Grakk"
+    },
+    {
+        "id": "nakroth.jpg",
+        "name": "Nakroth"
+    },
+    {
+        "id": "Taara_Splash_Art.webp",
+        "name": "Taara"
+    },
+    {
+        "id": "Toro_Splash_Art.webp",
+        "name": "Toro"
+    },
+    {
+        "id": "Yorn_Splash_Art.webp",
+        "name": "Yorn"
+    },
+    {
+        "id": "Gildur_Splash_Art.webp",
+        "name": "Gildur"
+    },
+    {
+        "id": "alice.jpg",
+        "name": "Alice"
+    },
+    {
+        "id": "AzzenKa_Splash_Art.webp",
+        "name": "Azzen’Ka"
+    },
+    {
+        "id": "Ormarr_Splash_Art.webp",
+        "name": "Ormarr"
+    },
+    {
+        "id": "Butterfly_Splash_Art.webp",
+        "name": "Butterfly"
+    },
+    {
+        "id": "violet.jpg",
+        "name": "Violet"
+    },
+    {
+        "id": "Chaugnar_Splash_Art.webp",
+        "name": "Chaugnar"
+    },
+    {
+        "id": "Diaochan_Splashart.webp",
+        "name": "Điêu Thuyền"
+    },
+    {
+        "id": "zephys.jpg",
+        "name": "Zephys"
+    },
+    {
+        "id": "Kahlii_Splash_Art.webp",
+        "name": "Kahlii"
+    },
+    {
+        "id": "Omega_Splash_Art.webp",
+        "name": "Omega"
+    },
+    {
+        "id": "yan.jpg",
+        "name": "Triệu Vân"
+    },
+    {
+        "id": "mganga.jpg",
+        "name": "Mganga"
+    },
+    {
+        "id": "Krixi_Splash_Art.webp",
+        "name": "Krixi"
+    },
+    {
+        "id": "Mina_Splash_Art.webp",
+        "name": "Mina"
+    },
+    {
+        "id": "Lu_Bu_Splash_Art.webp",
+        "name": "Lữ Bố"
+    },
+    {
+        "id": "Veera_Splash_Art.webp",
+        "name": "Veera"
+    },
+    {
+        "id": "Thane_Splash_Art.webp",
+        "name": "Thane"
+    },
+    {
+        "id": "Valhein_Splash_Art.webp",
+        "name": "Valhein"
+    }
+]

@@ -1,0 +1,1323 @@
+/* -------------------------------------------------------------------------- */
+/* RESET & BASE STYLES                                                       */
+/* -------------------------------------------------------------------------- */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: transparent; /* Essential for OBS Transparency */
+  color: #fff;
+  height: 1080px;
+  width: 1920px;
+  overflow: hidden;
+}
+
+/* -------------------------------------------------------------------------- */
+/* REVEAL OVERLAY (TEAM PRESENTATION - ORIGINAL SLIDING ROWS)                */
+/* -------------------------------------------------------------------------- */
+#reveal-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 1s ease, background 0.8s ease; /* Fluid background transition */
+  background: transparent; /* Changed from solid black, rows will provide the solid background */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+/* IMPORTANT: Clear the background when showing in-game HUD */
+#reveal-overlay.phase-split { pointer-events: none; }
+
+#reveal-overlay.active { opacity: 1; visibility: visible; }
+
+.reveal-row {
+  position: absolute;
+  width: 100%;
+  height: 50%; /* Each takes exactly half the screen */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1); /* Removed opacity transition for pure sliding */
+  background: #000; /* Solid background acting as a shutter door */
+  z-index: 100;
+}
+
+.reveal-row.top { top: 0; transform: translateX(120%); border-bottom: 4px solid #ff3e3e; }
+.reveal-row.bottom { bottom: 0; transform: translateX(-120%); border-top: 4px solid #007bff; }
+
+#reveal-overlay.active .reveal-row.top { transform: translateX(0); }
+#reveal-overlay.active .reveal-row.bottom { transform: translateX(0); }
+
+/* TEAM NAME OVERLAY IN REVEAL ROW */
+.reveal-team-name {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    font-size: 80px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.05); /* Large background watermark */
+    text-transform: uppercase;
+    letter-spacing: 20px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Fly away on In-game phase */
+#reveal-overlay.phase-split .reveal-row.top { transform: translateY(-100%) !important; opacity: 1; }
+#reveal-overlay.phase-split .reveal-row.bottom { transform: translateY(100%) !important; opacity: 1; }
+
+.reveal-card {
+  width: 280px;
+  height: 400px;
+  perspective: 1500px;
+}
+
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-style: preserve-3d;
+}
+
+#reveal-overlay.phase-heroes .card-inner { transform: rotateX(180deg); }
+
+.card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 4px solid rgba(255,255,255,0.1);
+  box-shadow: 0 15px 45px rgba(0,0,0,0.8);
+}
+
+.card-face.card-front { background: #111; }
+.card-face.card-back {
+  background: #000;
+  transform: rotateX(180deg); /* Change to rotateX for better flip feeling */
+  border-color: #ffcc00;
+}
+
+.player-photo-container {
+    width: 100%;
+    height: 85%;
+    position: relative;
+    overflow: hidden;
+    background: #111;
+}
+
+.player-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.3s ease;
+}
+
+.hero-reveal-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.3;
+    filter: grayscale(100%) brightness(0.5);
+    z-index: 1;
+}
+
+.player-photo { z-index: 2; position: relative; }
+
+.card-img { width: 100%; height: 85%; object-fit: cover; }
+.card-label {
+  height: 15%;
+  background: rgba(0,0,0,0.9);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.p-reveal-name { font-size: 18px; font-weight: 900; color: #fff; letter-spacing: 2px; text-transform: uppercase; }
+.h-reveal-name { font-size: 16px; font-weight: 800; color: #ffcc00; text-transform: uppercase; }
+
+/* -------------------------------------------------------------------------- */
+/* IN-GAME HUD OVERLAY                                                       */
+/* -------------------------------------------------------------------------- */
+#ingame-hud {
+  position: absolute;
+  inset: 0;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 1s ease;
+}
+
+/* Split Transition: Move reveal rows out, show In-game HUD */
+#reveal-overlay.phase-split #grid-t2-reveal { transform: translateY(-500px); opacity: 0; }
+#reveal-overlay.phase-split #grid-t1-reveal { transform: translateY(500px); opacity: 0; }
+#reveal-overlay.phase-split + #ingame-hud { opacity: 1; visibility: visible; }
+
+.ingame-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 110px;
+  background: linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0.7) 100%);
+  border-bottom: 2px solid rgba(255, 204, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px; /* Balanced Gap */
+}
+
+.ig-team-side { 
+  display: flex; 
+  align-items: center; 
+  gap: 15px; 
+  width: 420px;
+}
+.ig-team-side.left { justify-content: flex-end; flex-direction: row; }
+.ig-team-side.right { justify-content: flex-end; flex-direction: row-reverse; }
+
+.ig-logo { width: 70px; height: 70px; object-fit: contain; }
+.ig-name { font-size: 24px; font-weight: 900; color: #fff; text-transform: uppercase; }
+
+.ig-score-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background: rgba(20,20,20,0.95);
+  padding: 10px 40px;
+  border-radius: 6px;
+  border: 2px solid #ffcc00;
+  box-shadow: 0 0 30px rgba(255, 204, 0, 0.4);
+  z-index: 10;
+}
+
+.ig-score-val { font-size: 52px; font-weight: 950; color: #ffcc00; min-width: 60px; text-align: center; }
+.ig-score-label { font-size: 14px; font-weight: 900; color: #ffcc00; letter-spacing: 2px; text-transform: uppercase; }
+
+.ingame-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 90px;
+  background: linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0.7) 100%);
+  border-top: 2px solid rgba(255, 204, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ig-event-text {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 10px;
+  color: #fff;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, transparent 0%, #ffcc00 50%, transparent 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shine-text 6s infinite linear;
+}
+
+@keyframes shine-text {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* CAM CARD: wraps image frame + name bar below */
+.ig-cam-card {
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+}
+.ig-cam-card.left { left: 0; }
+.ig-cam-card.right { right: 0; }
+
+.ig-player-frame {
+  width: 300px;
+  height: 170px;
+  background: #000;
+  border: 3px solid #ffcc00;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.ig-player-frame.combat-hidden ~ * { display: none; }
+.ig-cam-card.left .ig-player-frame { 
+  border-color: #007bff;
+  border-left: none;
+  border-bottom: none;
+  border-top-right-radius: 10px;
+}
+.ig-cam-card.right .ig-player-frame { 
+  border-color: #ff3e3e;
+  border-right: none;
+  border-bottom: none;
+  border-top-left-radius: 10px;
+}
+
+.ig-cam-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease, object-position 0.3s ease;
+}
+
+/* Name bar: solid block BELOW the camera image */
+.ig-cam-label {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.92);
+  padding: 8px 0;
+  text-align: center;
+}
+.ig-cam-label.left { 
+  border-right: 3px solid #007bff;
+  border-bottom: none;
+  border-left: none;
+}
+.ig-cam-label.right { 
+  border-left: 3px solid #ff3e3e;
+  border-bottom: none;
+  border-right: none;
+}
+
+.ig-player-name { 
+  font-size: 16px; 
+  font-weight: 900; 
+  color: #fff; 
+  text-transform: uppercase; 
+  letter-spacing: 3px;
+  text-shadow: 0 0 10px rgba(0,0,0,1);
+}
+
+.ig-cam-card.victory-hidden {
+  opacity: 0 !important;
+  pointer-events: none;
+  transform: translateY(40px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+/* ========================================================================== */
+/* 5-CAM VICTORY CELEBRATION / PUSH BAR (WHEN A TEAM IS ABOUT TO WIN)         */
+/* ========================================================================== */
+.ig-victory-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 220px;
+  background: linear-gradient(180deg, rgba(8, 12, 20, 0.98) 0%, rgba(3, 5, 8, 0.99) 100%);
+  border-top: 3px solid #ffcc00;
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.95);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  z-index: 100;
+  transform: translateY(115%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+}
+
+.ig-victory-bar.active {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ig-victory-bar.team-t1 {
+  border-top-color: #00d2ff;
+  box-shadow: 0 -10px 45px rgba(0, 210, 255, 0.35);
+}
+.ig-victory-bar.team-t2 {
+  border-top-color: #ff2a54;
+  box-shadow: 0 -10px 45px rgba(255, 42, 84, 0.35);
+}
+
+.victory-wing {
+  height: 184px;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  margin-bottom: 26px;
+  flex-shrink: 0;
+}
+.victory-wing.left {
+  align-items: center;
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+}
+.victory-wing.right {
+  align-items: center;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.victory-logo-box {
+  width: 76px;
+  height: 76px;
+  background: rgba(5, 8, 14, 0.85);
+  border: 1.5px solid rgba(255, 204, 0, 0.55);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  margin-bottom: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.8);
+}
+.team-t1 .victory-logo-box { border-color: #00d2ff; }
+.team-t2 .victory-logo-box { border-color: #ff2a54; }
+
+.victory-team-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.victory-team-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.victory-status-tag {
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: 2.5px;
+  color: #ffcc00;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+  text-shadow: 0 0 8px rgba(255, 204, 0, 0.6);
+}
+.victory-team-name {
+  font-size: 17px;
+  font-weight: 950;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 2px 6px #000;
+}
+
+.victory-tag-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 18px;
+  background: rgba(10, 14, 22, 0.9);
+  border: 1.5px solid rgba(255, 204, 0, 0.55);
+  border-radius: 4px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.8);
+}
+.team-t1 .victory-tag-box { border-color: #00d2ff; }
+.team-t2 .victory-tag-box { border-color: #ff2a54; }
+
+.victory-accent-tag {
+  font-size: 20px;
+  font-weight: 950;
+  letter-spacing: 3px;
+  color: #ffffff;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+}
+
+.victory-cams-row {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  height: 184px;
+  align-items: stretch;
+  justify-content: center;
+  padding: 0 8px;
+  margin-bottom: 26px;
+}
+
+.victory-cam-slot {
+  flex: 1;
+  max-width: 260px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #090c14;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.9);
+}
+.team-t1 .victory-cam-slot {
+  border-color: rgba(0, 210, 255, 0.75);
+  box-shadow: 0 0 16px rgba(0, 210, 255, 0.25);
+}
+.team-t2 .victory-cam-slot {
+  border-color: rgba(255, 42, 84, 0.75);
+  box-shadow: 0 0 16px rgba(255, 42, 84, 0.25);
+}
+
+.victory-cam-frame {
+  flex: 1;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  background: #000;
+}
+.victory-player-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.2s ease, object-position 0.2s ease;
+}
+
+.victory-cam-nameplate {
+  height: 30px;
+  background: linear-gradient(180deg, rgba(14, 18, 28, 0.95) 0%, rgba(4, 6, 10, 0.98) 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+}
+.victory-cam-nameplate span {
+  font-size: 13px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-shadow: 0 2px 4px #000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.victory-bottom-ribbon {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 26px;
+  background: rgba(3, 5, 8, 0.98);
+  border-top: 1px solid rgba(255, 204, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.victory-event-label {
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 6px;
+  color: #ffcc00;
+  text-transform: uppercase;
+}
+
+/* -------------------------------------------------------------------------- */
+/* MAIN DRAFT HUD (FALLBACK/REFERENCE)                                       */
+/* -------------------------------------------------------------------------- */
+img[src=""], img:not([src]) {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+#hud-container {
+  display: block; /* Always block to allow transitions */
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  z-index: 50;
+  transform: translateY(100%); /* Start hidden below */
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+#hud-container.active-draft {
+  transform: translateY(0); /* Slide up to show */
+  pointer-events: auto;
+}
+
+/* ========================================================================== */
+/* 1. UPPER CORNERS: LAST PICK (GLOBAL BAN PICK - STACKS G1..G8 CLEANLY)      */
+/* ========================================================================== */
+.global-bans-hud {
+  position: absolute;
+  top: 135px;
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 610px;
+  z-index: 65;
+  pointer-events: none;
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.85));
+}
+.global-bans-hud.left { left: 0; align-items: flex-start; }
+.global-bans-hud.right { right: 0; align-items: flex-end; }
+
+.gban-hud-header {
+  position: relative;
+  padding: 5px 24px 5px 16px;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+}
+.gban-hud-header.t1 {
+  background: linear-gradient(90deg, #07192e 0%, #0066cc 75%, #00d2ff 100%);
+  border-left: 4px solid #ffcc00;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 100%, 0 100%);
+}
+.gban-hud-header.t2 {
+  padding: 5px 16px 5px 24px;
+  background: linear-gradient(-90deg, #2a0710 0%, #cc1133 75%, #ff2a54 100%);
+  border-right: 4px solid #ffcc00;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 14px 100%);
+}
+
+.gban-hud-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.gban-hud-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(10, 13, 20, 0.92);
+  padding: 3px 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.8);
+}
+.gban-hud-group.t1 {
+  border-left: 3px solid #00d2ff;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+  padding-right: 12px;
+}
+.gban-hud-group.t2 {
+  flex-direction: row-reverse;
+  border-right: 3px solid #ff2a54;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 8px 100%);
+  padding-left: 12px;
+}
+
+.gban-hud-tag {
+  min-width: 34px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: #ffcc00;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, rgba(255, 204, 0, 0.18) 0%, rgba(15, 20, 30, 0.95) 100%);
+  border: 1px solid rgba(255, 204, 0, 0.45);
+  text-shadow: 0 0 8px rgba(255, 204, 0, 0.5);
+}
+.gban-hud-group.t1 .gban-hud-tag {
+  clip-path: polygon(0 0, 100% 0, calc(100% - 5px) 100%, 0 100%);
+}
+.gban-hud-group.t2 .gban-hud-tag {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 5px 100%);
+}
+
+.gban-hud-icons {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.gban-hud-group.t2 .gban-hud-icons {
+  flex-direction: row-reverse;
+}
+
+.gban-hud-icon {
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  overflow: hidden;
+  position: relative;
+  background: #080a0f;
+}
+.gban-hud-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(100%) brightness(0.82) contrast(1.15);
+}
+/* Crisp diagonal slash across previous game picked heroes */
+.gban-hud-icon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 145%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.95);
+  transform: translate(-50%, -50%) rotate(45deg);
+  pointer-events: none;
+  z-index: 3;
+}
+.gban-hud-group.t2 .gban-hud-icon::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+/* ========================================================================== */
+/* 2. UPPER DRAFT HEADER RIBBON (WINGS + SCORES + 4 BANS + CENTER STAGE PILL) */
+/* ========================================================================== */
+.draft-top-ribbon {
+  position: absolute;
+  bottom: 221px; /* Sits directly above 6px timer bar + 215px bottom draft bar */
+  left: 0;
+  width: 100%;
+  height: 60px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  z-index: 65;
+  pointer-events: none;
+}
+
+.ribbon-side {
+  display: flex;
+  align-items: flex-end;
+  height: 100%;
+  gap: 6px;
+}
+.ribbon-side.left {
+  justify-content: flex-start;
+}
+.ribbon-side.right {
+  justify-content: flex-end;
+}
+
+/* TEAM WING (OUTER LEFT & RIGHT) */
+.team-wing {
+  height: 58px;
+  min-width: 350px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 24px 0 14px;
+  position: relative;
+  box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.85);
+}
+.team-wing.t1 {
+  background: linear-gradient(90deg, #061326 0%, #0b294c 65%, #0077cc 100%);
+  border-top: 2px solid #00d2ff;
+  border-left: 5px solid #ffcc00;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 100%, 0 100%);
+}
+.team-wing.t2 {
+  justify-content: flex-end;
+  padding: 0 14px 0 24px;
+  background: linear-gradient(-90deg, #24060d 0%, #4c0b1d 65%, #cc0033 100%);
+  border-top: 2px solid #ff2a54;
+  border-right: 5px solid #ffcc00;
+  clip-path: polygon(16px 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.wing-logo-box {
+  width: 44px;
+  height: 44px;
+  background: rgba(5, 8, 14, 0.75);
+  border: 1px solid rgba(255, 204, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  flex-shrink: 0;
+  clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+}
+.wing-team-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+}
+
+.wing-team-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.team-wing.t1 .wing-team-info { align-items: flex-start; }
+.team-wing.t2 .wing-team-info { align-items: flex-end; }
+
+.wing-team-tag {
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 2.5px;
+  color: #ffcc00;
+  opacity: 0.9;
+  line-height: 1;
+  margin-bottom: 3px;
+}
+.wing-team-name {
+  font-size: 19px;
+  font-weight: 950;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  line-height: 1.05;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+  max-width: 265px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* SCORE BOX NEXT TO TEAM WING */
+.team-score-box {
+  width: 62px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: 950;
+  color: #ffcc00;
+  background: linear-gradient(180deg, #161b26 0%, #090b10 100%);
+  border-top: 2px solid #ffcc00;
+  text-shadow: 0 0 14px rgba(255, 204, 0, 0.55), 0 2px 6px #000;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.85);
+}
+.team-score-box.t1 {
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 100%, 12px 100%);
+  margin-left: -10px;
+  border-right: 2px solid rgba(0, 210, 255, 0.6);
+}
+.team-score-box.t2 {
+  clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
+  margin-right: -10px;
+  border-left: 2px solid rgba(255, 42, 84, 0.6);
+}
+
+/* 4 BAN SLOTS NEXT TO SCORE BOX */
+.bans-bottom-aligned {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 60px;
+  padding: 0 4px;
+}
+.bans-bottom-aligned.left {
+  flex-direction: row;
+}
+.bans-bottom-aligned.right {
+  flex-direction: row-reverse;
+}
+
+.ban-box-mini {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(145deg, #10141f 0%, #07090e 100%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-top: 2px solid rgba(255, 204, 0, 0.55);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.85);
+}
+.ban-box-mini.t1 {
+  border-bottom: 2px solid rgba(0, 210, 255, 0.5);
+}
+.ban-box-mini.t2 {
+  border-bottom: 2px solid rgba(255, 42, 84, 0.5);
+}
+
+.ban-empty-emblem {
+  color: rgba(255, 255, 255, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ban-box-mini img.ban-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.9;
+  transition: all 0.4s ease;
+}
+.ban-box-mini.locked img.ban-hero-img {
+  filter: grayscale(100%) brightness(0.78) contrast(1.15);
+  opacity: 1;
+}
+/* Crisp diagonal slash on locked ban slot */
+.ban-box-mini.locked::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 145%;
+  height: 3px;
+  background: linear-gradient(90deg, #ff2a54, #ffcc00, #ff2a54);
+  transform: translate(-50%, -50%) rotate(-45deg);
+  box-shadow: 0 0 8px #000, 0 0 6px rgba(255, 42, 84, 0.9);
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* CENTER STAGE PILL (ANGLED TRAPEZOID ABOVE TIMER BAR) */
+.center-stage-pill {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  height: 38px;
+  min-width: 310px;
+  padding: 0 28px;
+  background: linear-gradient(180deg, #1b2130 0%, #0a0d14 100%);
+  border-top: 2px solid #ffcc00;
+  clip-path: polygon(18px 0, calc(100% - 18px) 0, 100% 100%, 0 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.9);
+}
+.stage-pill-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.center-stage-name {
+  font-size: 13px;
+  font-weight: 900;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+.stage-pill-sep {
+  font-size: 12px;
+  font-weight: 900;
+  color: #ffcc00;
+}
+.center-series-type {
+  font-size: 13px;
+  font-weight: 900;
+  color: #ffcc00;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* ========================================================================== */
+/* 3. FULL-WIDTH SMOOTH 60FPS FLOWING TIMER BAR                               */
+/* ========================================================================== */
+.timer-bar-outer {
+  position: absolute;
+  bottom: 215px; /* Sits directly on top of the 215px bottom draft bar */
+  left: 0;
+  width: 100%;
+  height: 6px;
+  display: flex;
+  background: rgba(15, 20, 30, 0.9);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.9);
+  z-index: 100;
+  pointer-events: none;
+}
+
+.timer-side {
+  flex: 1;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.timer-fill {
+  position: absolute;
+  height: 100%;
+  width: 100%; /* Controlled continuously by 60fps requestAnimationFrame */
+  background: #ffcc00;
+  box-shadow: 0 0 18px rgba(255, 204, 0, 0.95);
+  will-change: width;
+}
+
+/* COUNTDOWN & REFILL: ANCHORED AT CENTER, FLOWS BETWEEN EDGES AND CENTER */
+.timer-fill.left {
+  right: 0;
+  background: linear-gradient(90deg, #00d2ff 0%, #ffcc00 45%, #fff2a8 100%);
+}
+.timer-fill.right {
+  left: 0;
+  background: linear-gradient(-90deg, #ff2a54 0%, #ffcc00 45%, #fff2a8 100%);
+}
+
+/* ========================================================================== */
+/* 4. BOTTOM DRAFT BAR: 5 TALL PICK CARDS + NARROW PILLAR + 5 TALL PICK CARDS */
+/* ========================================================================== */
+.bottom-draft-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 215px;
+  background: #06080d;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  box-shadow: 0 -12px 45px rgba(0, 0, 0, 0.95);
+}
+
+.picks-half {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  flex: 1;
+  height: 100%;
+  gap: 4px;
+  padding: 4px 6px;
+  background: linear-gradient(180deg, #0c101a 0%, #05070b 100%);
+}
+.picks-half.t1 {
+  border-bottom: 4px solid #00d2ff;
+}
+.picks-half.t2 {
+  border-bottom: 4px solid #ff2a54;
+}
+
+.pick-slot-horiz {
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 50% 35%, #1a2336 0%, #090c14 100%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+}
+.pick-slot-horiz.t2 {
+  background: radial-gradient(circle at 50% 35%, #301722 0%, #0b080d 100%);
+}
+.pick-slot-horiz.locked::after {
+  display: none;
+}
+
+/* TOP-LEFT ANGLED LANE/ROLE BADGE (JUST LIKE REFERENCE BROADCAST) */
+/* TOP-LEFT ANGLED LANE/ROLE BADGE (ENLARGED & HIGH CONTRAST) */
+.role-corner-badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 32px;
+  min-width: 58px;
+  background: linear-gradient(135deg, rgba(8, 12, 20, 0.96) 0%, rgba(20, 28, 44, 0.96) 100%);
+  border-right: 2px solid #ffcc00;
+  border-bottom: 2px solid #ffcc00;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  z-index: 22;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 10px 0 6px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.9);
+}
+.role-icon-crop {
+  width: 22px;
+  height: 22px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.role-icon-crop img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(2.6); /* Zooms past dark borders directly into the lane emblem */
+  filter: brightness(2) contrast(1.5) drop-shadow(0 0 2px #fff);
+}
+.role-text-badge {
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 1px;
+  color: #ffcc00;
+  text-shadow: 0 1px 4px #000;
+  line-height: 1;
+}
+
+/* STANDBY PLAYER PORTRAIT WHEN NO HERO IS PICKED YET */
+.pick-player-standby {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 15%;
+  z-index: 1;
+  filter: contrast(1.08) brightness(0.92);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+/* PICKED HERO SPLASH ART */
+.pick-hero-img-full {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0;
+  z-index: 5;
+  filter: brightness(0.88);
+}
+.pick-slot-horiz.locked .pick-hero-img-full {
+  filter: brightness(1.06) contrast(1.06);
+  opacity: 1;
+}
+.pick-hero-img-full.active {
+  opacity: 1;
+}
+
+/* ANGLED TRAPEZOID PLAYER NAMEPLATE AT BOTTOM OF EACH PICK CARD */
+.pick-label-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 36px;
+  background: linear-gradient(180deg, rgba(10, 14, 22, 0.82) 0%, rgba(4, 6, 10, 0.98) 100%);
+  border-top: 1.5px solid rgba(255, 204, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  padding: 0 8px;
+}
+.pick-slot-horiz.t1 .pick-label-bottom {
+  box-shadow: inset 0 -2px 0 rgba(0, 210, 255, 0.6);
+}
+.pick-slot-horiz.t2 .pick-label-bottom {
+  box-shadow: inset 0 -2px 0 rgba(255, 42, 84, 0.6);
+}
+.pick-label-text {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1.8px;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* NARROW VERTICAL CENTER PILLAR (BETWEEN 5 LEFT PICKS AND 5 RIGHT PICKS) */
+.center-pillar-divider {
+  width: 66px;
+  height: 100%;
+  background: linear-gradient(180deg, #161b28 0%, #07090f 50%, #141924 100%);
+  border-left: 2px solid rgba(255, 204, 0, 0.55);
+  border-right: 2px solid rgba(255, 204, 0, 0.55);
+  border-bottom: 4px solid #ffcc00;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0 6px 0;
+  z-index: 30;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.95);
+  position: relative;
+}
+
+.pillar-crest {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 204, 0, 0.25) 0%, rgba(10, 13, 20, 0.95) 75%);
+  border: 1px solid rgba(255, 204, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pillar-vertical-track {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  width: 100%;
+}
+.pillar-vertical-text {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 10px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.72);
+  letter-spacing: 2.2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.pillar-timer-box {
+  width: 54px;
+  padding: 4px 0;
+  background: rgba(5, 7, 12, 0.92);
+  border: 1px solid rgba(255, 204, 0, 0.45);
+  clip-path: polygon(6px 0, calc(100% - 6px) 0, 100% 100%, 0 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.pillar-timer-label {
+  font-size: 8px;
+  font-weight: 900;
+  color: #99a3b8;
+  letter-spacing: 1.5px;
+  line-height: 1;
+}
+.center-timer-text {
+  font-size: 16px;
+  font-weight: 950;
+  color: #ffcc00;
+  letter-spacing: 1px;
+  line-height: 1.15;
+  text-shadow: 0 0 10px rgba(255, 204, 0, 0.45);
+}
+
+/* ========================================================================== */
+/* 5. HUD OVERLAP FIX & DRAFTING HIGHLIGHTS                                   */
+/* ========================================================================== */
+#reveal-overlay.active ~ #hud-container,
+#reveal-overlay.phase-split ~ #hud-container {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none;
+}
+
+@keyframes pulseBlue {
+    0% { background-color: rgba(0, 210, 255, 0.08); box-shadow: inset 0 0 18px rgba(0, 210, 255, 0.35); }
+    100% { background-color: rgba(0, 210, 255, 0.45); box-shadow: inset 0 0 55px rgba(0, 210, 255, 0.95); }
+}
+@keyframes pulseRed {
+    0% { background-color: rgba(255, 42, 84, 0.08); box-shadow: inset 0 0 18px rgba(255, 42, 84, 0.35); }
+    100% { background-color: rgba(255, 42, 84, 0.45); box-shadow: inset 0 0 55px rgba(255, 42, 84, 0.95); }
+}
+@keyframes pulseGoldHover {
+    0% { background-color: rgba(255, 204, 0, 0.05); box-shadow: inset 0 0 15px rgba(255, 204, 0, 0.45); }
+    100% { background-color: rgba(255, 204, 0, 0.35); box-shadow: inset 0 0 50px rgba(255, 204, 0, 1); }
+}
+
+.pick-pulse-overlay,
+.ban-pulse-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 15;
+    pointer-events: none;
+    opacity: 0;
+}
+
+.ban-box-mini.drafting-blue {
+    border: 2px solid #00d2ff;
+    z-index: 50;
+}
+.ban-box-mini.drafting-blue .ban-pulse-overlay {
+    opacity: 1;
+    animation: pulseBlue 0.65s infinite alternate ease-in-out;
+}
+
+.ban-box-mini.drafting-red {
+    border: 2px solid #ff2a54;
+    z-index: 50;
+}
+.ban-box-mini.drafting-red .ban-pulse-overlay {
+    opacity: 1;
+    animation: pulseRed 0.65s infinite alternate ease-in-out;
+}
+
+.ban-box-mini.unlocked-hover {
+    border: 2px solid #ffcc00 !important;
+}
+.ban-box-mini.unlocked-hover .ban-pulse-overlay {
+    opacity: 1;
+    animation: pulseGoldHover 0.55s infinite alternate ease-in-out !important;
+}
+
+.pick-slot-horiz.drafting-blue {
+    border: 2px solid #00d2ff;
+    z-index: 30;
+}
+.pick-slot-horiz.drafting-blue .pick-pulse-overlay {
+    opacity: 1;
+    animation: pulseBlue 0.7s infinite alternate ease-in-out;
+}
+
+.pick-slot-horiz.drafting-red {
+    border: 2px solid #ff2a54;
+    z-index: 30;
+}
+.pick-slot-horiz.drafting-red .pick-pulse-overlay {
+    opacity: 1;
+    animation: pulseRed 0.7s infinite alternate ease-in-out;
+}
+
+/* When a hero is selected (hovered) but NOT locked yet, highlight with intense golden pulse over the portrait */
+.pick-slot-horiz.unlocked-hover {
+    border: 2px solid #ffcc00 !important;
+    z-index: 35;
+}
+.pick-slot-horiz.unlocked-hover .pick-pulse-overlay {
+    opacity: 1;
+    animation: pulseGoldHover 0.55s infinite alternate ease-in-out !important;
+}
+
+.pick-slot-horiz.drafting-blue:not(.unlocked-hover)::before,
+.pick-slot-horiz.drafting-red:not(.unlocked-hover)::before {
+    content: "PICKING";
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    padding: 2px 8px;
+    clip-path: polygon(6px 0, 100% 0, 100% 100%, 0 100%);
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 1.8px;
+    color: #fff;
+    z-index: 25;
+    pointer-events: none;
+}
+.pick-slot-horiz.drafting-blue:not(.unlocked-hover)::before {
+    background: linear-gradient(90deg, #0077cc, #00d2ff);
+    box-shadow: 0 0 10px rgba(0, 210, 255, 0.85);
+}
+.pick-slot-horiz.drafting-red:not(.unlocked-hover)::before {
+    background: linear-gradient(90deg, #cc0033, #ff2a54);
+    box-shadow: 0 0 10px rgba(255, 42, 84, 0.85);
+}
+
+.p-slot.selected-manual {
+    border: 3px solid #00f2fe;
+    box-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+    z-index: 11;
+}
+
