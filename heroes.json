@@ -1,5 +1,21 @@
 [
     {
+        "id": "evita.jpg",
+        "name": "Evita"
+    },
+    {
+        "id": "tamyn.png",
+        "name": "Tamyn"
+    },
+    {
+        "id": "flowborn-2.jpg",
+        "name": "Flowborn (Pháp sư)"
+    },
+    {
+        "id": "flowborn.jpg",
+        "name": "Flowborn (Xạ thủ)"
+    },
+    {
         "id": "DYADIA.jpg",
         "name": "Dyadia"
     },
@@ -472,7 +488,7 @@
         "name": "Omega"
     },
     {
-        "id": "yan.jpg",
+        "id": "Zanis_Splash_Art.webp",
         "name": "Triệu Vân"
     },
     {

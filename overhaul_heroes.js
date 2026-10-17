@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const garenaHeroes = [
+  {"name": "Evita"}, {"name": "Tamyn"}, {"name": "Flowborn (Pháp sư)"}, {"name": "Flowborn (Xạ thủ)"},
   {"name": "Dyadia"}, {"name": "Edras"}, {"name": "Goverra"}, {"name": "Heino"}, {"name": "Billow"},
   {"name": "Bolt Baron"}, {"name": "Biron"}, {"name": "Dolia"}, {"name": "Charlotte"}, {"name": "Tachi"},
   {"name": "Dirak"}, {"name": "Qi"}, {"name": "Erin"}, {"name": "Ming"}, {"name": "Bijan"},
@@ -29,11 +30,13 @@ const garenaHeroes = [
   {"name": "Krixi"}, {"name": "Mina"}, {"name": "Lữ Bố"}, {"name": "Veera"}, {"name": "Thane"}, {"name": "Valhein"}
 ];
 
-const mainDir = 'd:/banpick/images/';
+const mainDir = path.join(__dirname, 'images');
 const mainFiles = fs.readdirSync(mainDir).filter(f => !fs.lstatSync(path.join(mainDir, f)).isDirectory());
 
 const mappings = {
-  "Triệu Vân": ["yan.jpg", "zanis", "triệu vân"], // Zanis? Wait, Triệu Vân in Garena list is hero #119.
+  "Flowborn (Pháp sư)": ["flowborn-2.jpg"],
+  "Flowborn (Xạ thủ)": ["flowborn.jpg"],
+  "Triệu Vân": ["Zanis_Splash_Art.webp", "zanis", "triệu vân"],
   "The Flash": ["flash"],
   "Eland’orr": ["elandorr"],
   "D’Arcy": ["d'arcy"],
@@ -86,5 +89,5 @@ const finalHeroes = garenaHeroes.map(hero => {
   return { id: bestFile, name: vnName };
 });
 
-fs.writeFileSync('d:/banpick/heroes.json', JSON.stringify(finalHeroes, null, 4), 'utf8');
+fs.writeFileSync(path.join(__dirname, 'heroes.json'), JSON.stringify(finalHeroes, null, 4), 'utf8');
 console.log(`Generated heroes.json with ${finalHeroes.length} heroes.`);

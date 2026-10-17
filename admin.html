@@ -124,8 +124,16 @@
 <body>
     <div class="phase-header" id="current-phase-display">READY TO START</div>
 
-    <!-- HUD & Audio Controls -->
-    <div class="admin-section">
+    <!--HUD & Audio Controls -->
+    <div class="admin-section" style="border-left: 4px solid #ffcc00;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid #333;">
+            <span style="font-size:12px; font-weight:900; color:#ffcc00;">📺 3 SCENE TÁCH RIÊNG CHO OBS / TRÌNH DUYỆT (CHUYỂN CẢNH MƯỢT):</span>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <a href="/banpick.html" target="_blank" style="background:#1e293b; color:#38bdf8; border:1px solid #0284c7; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:11px; font-weight:bold;">1️⃣ Scene Banpick + Reveal (/banpick.html)</a>
+                <a href="/ingame.html" target="_blank" style="background:#1e293b; color:#4ade80; border:1px solid #16a34a; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:11px; font-weight:bold;">2️⃣ Scene In-Game + 5-Cam (/ingame.html)</a>
+                <a href="/postgame.html" target="_blank" style="background:#1e293b; color:#fbbf24; border:1px solid #d97706; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:11px; font-weight:bold;">3️⃣ Scene Sau Game Victory/Defeat (/postgame.html)</a>
+            </div>
+        </div>
         <h3 style="margin-bottom:15px; color:#ffcc00">BROADCAST & REVEAL</h3>
         <div style="display:flex; gap:10px; flex-wrap: wrap; align-items: center;">
             <button class="win-btn" onclick="controlHUD(true, true)" style="background: #28a745;">✨ HIỆN HUD + NHẠC</button>
@@ -141,11 +149,16 @@
             <button id="victory-t1-btn" class="win-btn" onclick="toggleVictoryCam(1)" style="background: #007bff; border-color: #00d2ff; font-weight: 900;" title="Hiện thanh 5 webcam/ảnh của Team 1 khi sắp thắng">🏆 5-CAM T1 GẦN THẮNG</button>
             <button id="victory-t2-btn" class="win-btn" onclick="toggleVictoryCam(2)" style="background: #dc3545; border-color: #ff3e3e; font-weight: 900;" title="Hiện thanh 5 webcam/ảnh của Team 2 khi sắp thắng">🏆 5-CAM T2 GẦN THẮNG</button>
             <button id="victory-off-btn" class="win-btn" onclick="toggleVictoryCam(0)" style="background: #333; color: #ccc;" title="Đóng thanh 5 webcam">❌ ĐÓNG 5-CAM</button>
+            <div style="width: 2px; height: 30px; background: #444; margin: 0 10px;"></div>
+            <button id="pm-banner-t1-btn" class="win-btn" onclick="toggleMatchResultBanner(1)" style="background: #d97706; border-color: #fbbf24; font-weight: 900;" title="Hiện bảng kết quả Victory/Defeat (Team 1 Victory)">🏅 KẾT QUẢ: T1 VICTORY</button>
+            <button id="pm-banner-t2-btn" class="win-btn" onclick="toggleMatchResultBanner(2)" style="background: #b45309; border-color: #f59e0b; font-weight: 900;" title="Hiện bảng kết quả Victory/Defeat (Team 2 Victory)">🏅 KẾT QUẢ: T2 VICTORY</button>
+            <button id="pm-banner-off-btn" class="win-btn" onclick="toggleMatchResultBanner(0)" style="background: #333; color: #ccc;" title="Ẩn bảng kết quả Victory/Defeat">❌ ĐÓNG BẢNG KQ</button>
             <div style="flex:1"></div>
             <div style="font-size: 11px; color: #aaa;">
                 HUD: <span id="hud-status" style="color:#f00">HIDDEN</span> |
                 IN-GAME: <span id="ingame-status" style="color:#aaa">OFF</span> |
-                5-CAM: <span id="victory-status" style="color:#aaa">OFF</span>
+                5-CAM: <span id="victory-status" style="color:#aaa">OFF</span> |
+                KẾT QUẢ: <span id="pm-banner-status" style="color:#aaa">OFF</span>
             </div>
         </div>
     </div>
@@ -297,7 +310,10 @@
                     <img id="prev-t1-logo" class="logo-preview">
                     <div style="flex:1">
                         <label style="font-size:11px; display:block">Tên Team 1:</label>
-                        <input type="text" id="setup-t1-name" placeholder="Tên Đội 1" onchange="updateTeamData()" style="width:90%">
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <input type="text" id="setup-t1-name" placeholder="Tên Đội 1" onchange="updateTeamData()" style="flex:1">
+                            <input type="color" id="setup-t1-color" value="#ff5500" onchange="updateTeamData()" title="Màu nền cánh Team 1 trên Bảng Kết Quả Victory/Defeat" style="width:36px; height:28px; padding:0; border:1px solid #666; background:#222; cursor:pointer;">
+                        </div>
                         <input type="file" id="upload-t1-logo" onchange="handleLogo(event, 1)" style="font-size:10px; margin-top:5px">
                     </div>
                 </div>
@@ -308,7 +324,10 @@
                     <img id="prev-t2-logo" class="logo-preview">
                     <div style="flex:1">
                         <label style="font-size:11px; display:block">Tên Team 2:</label>
-                        <input type="text" id="setup-t2-name" placeholder="Tên Đội 2" onchange="updateTeamData()" style="width:90%">
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <input type="text" id="setup-t2-name" placeholder="Tên Đội 2" onchange="updateTeamData()" style="flex:1">
+                            <input type="color" id="setup-t2-color" value="#f3d98b" onchange="updateTeamData()" title="Màu nền cánh Team 2 trên Bảng Kết Quả Victory/Defeat" style="width:36px; height:28px; padding:0; border:1px solid #666; background:#222; cursor:pointer;">
+                        </div>
                         <input type="file" id="upload-t2-logo" onchange="handleLogo(event, 2)" style="font-size:10px; margin-top:5px">
                     </div>
                 </div>
@@ -378,6 +397,7 @@
     </div>
 
     <script>
+        const API_BASE = (window.location.protocol === 'file:') ? 'http://localhost:3000' : '';
         let heroes = [];
         let currentStep = 0;
         let activeIds = []; // Strict sequence IDs (yellow highlight, HUD "PICKING")
@@ -386,9 +406,12 @@
         let timerInterval;
         let hudVisible = false;
         let musicPlaying = false;
+        let musicTriggerTime = 0;
+        let victoryMusicPlaying = false;
         let camsVisible = true;
         let revealState = { active: false, phase: 'hidden', triggerTime: 0 };
         let victoryCam = { active: false, team: 1 };
+        let matchResultBanner = { active: false, winner: 1, triggerTime: 0 };
         let playerTuning = {}; // Key format: t1_p0, t1_p1...
         let revealTuning = {}; // Separate XYZ for Reveal
  
@@ -402,8 +425,8 @@
 
         // Persistent Team Data
         let teamData = {
-            t1: { name: "TEAM 1", logo: "", players: ["P1", "P2", "P3", "P4", "P5"], playerPhotos: ["", "", "", "", ""], score: 0, history: [] },
-            t2: { name: "TEAM 2", logo: "", players: ["P1", "P2", "P3", "P4", "P5"], playerPhotos: ["", "", "", "", ""], score: 0, history: [] }
+            t1: { name: "TEAM 1", logo: "", color: "#ff5500", players: ["P1", "P2", "P3", "P4", "P5"], playerPhotos: ["", "", "", "", ""], score: 0, history: [] },
+            t2: { name: "TEAM 2", logo: "", color: "#f3d98b", players: ["P1", "P2", "P3", "P4", "P5"], playerPhotos: ["", "", "", "", ""], score: 0, history: [] }
         };
 
         const sequence = [
@@ -421,13 +444,13 @@
         ];
 
         async function init() {
-            const resp = await fetch('heroes.json');
+            const resp = await fetch(`${API_BASE}/heroes.json`);
             heroes = await resp.json();
             heroes.sort((a, b) => a.name.localeCompare(b.name));
             document.getElementById('hero-count').innerText = `Heroes: ${heroes.length}`;
             
             try {
-                const cfgResp = await fetch('/get');
+                const cfgResp = await fetch(`${API_BASE}/get`, { cache: 'no-store' });
                 const cfgData = await cfgResp.json();
                 masterConfigs = cfgData.heroConfigs || {};
             } catch (e) {}
@@ -438,6 +461,7 @@
             loadState();
             updatePhaseDisplay();
             updateSetupFields();
+            saveAll(true);
         }
 
         function renderSetupUI() {
@@ -463,6 +487,10 @@
         function updateSetupFields() {
             document.getElementById('setup-t1-name').value = teamData.t1.name;
             document.getElementById('setup-t2-name').value = teamData.t2.name;
+            const c1El = document.getElementById('setup-t1-color');
+            if (c1El) c1El.value = teamData.t1.color || '#ff5500';
+            const c2El = document.getElementById('setup-t2-color');
+            if (c2El) c2El.value = teamData.t2.color || '#f3d98b';
             document.getElementById('score-t1').innerText = teamData.t1.score;
             document.getElementById('score-t2').innerText = teamData.t2.score;
             const logo1El = document.getElementById('prev-t1-logo');
@@ -588,7 +616,7 @@
             
             // Save to server
             try {
-                await fetch('/save-config', {
+                await fetch(`${API_BASE}/save-config`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ heroId, ...masterConfigs[heroId] })
@@ -652,6 +680,10 @@
         function updateTeamData() {
             teamData.t1.name = document.getElementById('setup-t1-name').value;
             teamData.t2.name = document.getElementById('setup-t2-name').value;
+            const c1El = document.getElementById('setup-t1-color');
+            if (c1El) teamData.t1.color = c1El.value;
+            const c2El = document.getElementById('setup-t2-color');
+            if (c2El) teamData.t2.color = c2El.value;
             for(let team=1; team<=2; team++) {
                 for(let p=0; p<5; p++) {
                     const el = document.getElementById(`setup-t${team}-p${p}`);
@@ -676,10 +708,15 @@
                 }
             }
 
-            // 1. Swap teamData (includes name, logo, score, players, playerPhotos, history)
+            // 1. Swap teamData (includes name, logo, color, score, players, playerPhotos, history)
             const tempTeam = JSON.parse(JSON.stringify(teamData.t1));
             teamData.t1 = JSON.parse(JSON.stringify(teamData.t2));
             teamData.t2 = tempTeam;
+
+            if (matchResultBanner && matchResultBanner.active) {
+                matchResultBanner.winner = (matchResultBanner.winner === 1) ? 2 : 1;
+                updateMatchResultBannerUI();
+            }
 
             // 2. Swap playerTuning and revealTuning between t1_p0..4 and t2_p0..4
             for (let p = 0; p < 5; p++) {
@@ -738,7 +775,26 @@
                 teamData.t2.history.push(t2Picks);
             }
 
-            const doSwap = confirm("Trận đấu kết thúc! Bạn có muốn ĐỔI BÊN cho ván tiếp theo không?");
+            // Show the Post-Match Victory / Defeat result banner + play Victory music automatically!
+            matchResultBanner = { active: true, winner: teamNum, triggerTime: Date.now() };
+            victoryMusicPlaying = true;
+            musicPlaying = false;
+            hudVisible = false;
+            if (revealState && revealState.phase !== 'hidden') {
+                revealState.active = false;
+                revealState.phase = 'hidden';
+                revealState.triggerTime = Date.now();
+            }
+            if (victoryCam && victoryCam.active) {
+                victoryCam.active = false;
+                updateVictoryCamUI();
+            }
+            updateMatchResultBannerUI();
+            updateOverlayStatusUI();
+            updateSetupFields();
+            await saveAll();
+
+            const doSwap = confirm("Đã hiện bảng Kết Quả Victory/Defeat!\nBạn có muốn ĐỔI BÊN và xóa cấm/chọn để chuẩn bị cho ván tiếp theo luôn không?");
             if(doSwap) {
                 swapSides(false);
             }
@@ -1193,12 +1249,23 @@
 
         function controlHUD(visible, startMusic) {
             hudVisible = visible;
-            if(startMusic === true) musicPlaying = true;
-            // Automatically close Reveal / In-Game HUD when showing the Ban/Pick HUD so it is never blocked
-            if(visible && revealState && revealState.phase !== 'hidden') {
-                revealState.active = false;
-                revealState.phase = 'hidden';
-                revealState.triggerTime = Date.now();
+            if(startMusic === true) {
+                musicPlaying = true;
+                musicTriggerTime = Date.now();
+                victoryMusicPlaying = false;
+            }
+            // Automatically close Reveal / In-Game HUD / Match Result Banner when showing the Ban/Pick HUD so it is never blocked
+            if(visible) {
+                if (revealState && revealState.phase !== 'hidden') {
+                    revealState.active = false;
+                    revealState.phase = 'hidden';
+                    revealState.triggerTime = Date.now();
+                }
+                if (matchResultBanner && matchResultBanner.active) {
+                    matchResultBanner.active = false;
+                    victoryMusicPlaying = false;
+                    updateMatchResultBannerUI();
+                }
             }
             if(visible && currentStep < sequence.length && !timerInterval) {
                 startTimer();
@@ -1209,6 +1276,11 @@
 
         function controlMusic(playing) {
             musicPlaying = playing;
+            if (playing) {
+                musicTriggerTime = Date.now();
+            } else {
+                victoryMusicPlaying = false;
+            }
             saveAll();
         }
 
@@ -1220,25 +1292,77 @@
                 victoryCam.active = false;
                 updateVictoryCamUI();
             }
+            if (phase !== 'hidden' && matchResultBanner && matchResultBanner.active) {
+                matchResultBanner.active = false;
+                victoryMusicPlaying = false;
+                updateMatchResultBannerUI();
+            }
             updateOverlayStatusUI();
             saveAll();
+        }
+
+        function toggleMatchResultBanner(teamNum) {
+            if (teamNum === 0) {
+                matchResultBanner = { active: false, winner: 1, triggerTime: 0 };
+                victoryMusicPlaying = false;
+            } else {
+                // Automatically increment the winning team's score so the displayed score is always accurate!
+                const key = `t${teamNum}`;
+                if (teamData[key]) {
+                    teamData[key].score = (teamData[key].score || 0) + 1;
+                }
+                matchResultBanner = { active: true, winner: teamNum, triggerTime: Date.now() };
+                victoryMusicPlaying = true;
+                musicPlaying = false;
+                // Hide Draft HUD and In-Game / 5-Cam so the result banner shows cleanly over the broadcast feed
+                hudVisible = false;
+                if (revealState && revealState.phase !== 'hidden') {
+                    revealState.active = false;
+                    revealState.phase = 'hidden';
+                    revealState.triggerTime = Date.now();
+                }
+                if (victoryCam && victoryCam.active) {
+                    victoryCam.active = false;
+                    updateVictoryCamUI();
+                }
+                updateSetupFields();
+                updateOverlayStatusUI();
+            }
+            updateMatchResultBannerUI();
+            saveAll();
+        }
+
+        function updateMatchResultBannerUI() {
+            const statusEl = document.getElementById('pm-banner-status');
+            const t1Btn = document.getElementById('pm-banner-t1-btn');
+            const t2Btn = document.getElementById('pm-banner-t2-btn');
+            if (!statusEl) return;
+
+            if (!matchResultBanner || !matchResultBanner.active) {
+                statusEl.innerText = 'OFF';
+                statusEl.style.color = '#aaa';
+                if (t1Btn) t1Btn.style.opacity = '1';
+                if (t2Btn) t2Btn.style.opacity = '1';
+            } else {
+                const wNum = matchResultBanner.winner;
+                statusEl.innerText = `T${wNum} VICTORY`;
+                statusEl.style.color = '#ffcc00';
+                if (t1Btn) t1Btn.style.opacity = (wNum === 1) ? '1' : '0.6';
+                if (t2Btn) t2Btn.style.opacity = (wNum === 2) ? '1' : '0.6';
+            }
         }
 
         function toggleVictoryCam(teamNum) {
             if (teamNum === 0) {
                 victoryCam = { active: false, team: 1 };
             } else {
-                if (victoryCam.active && victoryCam.team === teamNum) {
-                    victoryCam.active = false;
-                } else {
-                    victoryCam = { active: true, team: teamNum };
-                    // Automatically open In-Game HUD if not already open
-                    if (!revealState || revealState.phase !== 'split') {
-                        revealState.active = true;
-                        revealState.phase = 'split';
-                        revealState.triggerTime = Date.now();
-                        updateOverlayStatusUI();
-                    }
+                victoryCam = { active: true, team: teamNum };
+                // Automatically open In-Game HUD if not already open
+                if (!revealState || revealState.phase !== 'split') {
+                    revealState.active = true;
+                    revealState.phase = 'split';
+                    revealState.triggerTime = Date.now();
+                    updateOverlayStatusUI();
                 }
             }
             updateVictoryCamUI();
@@ -1281,9 +1405,12 @@
                 teamData: teamData,
                 hudVisible: hudVisible,
                 musicPlaying: musicPlaying,
+                musicTriggerTime: musicTriggerTime,
+                victoryMusicPlaying: victoryMusicPlaying,
                 camsVisible: camsVisible,
                 revealState: revealState,
                 victoryCam: victoryCam,
+                matchResultBanner: matchResultBanner,
                 playerTuning: playerTuning,
                 revealTuning: revealTuning
             };
@@ -1293,7 +1420,7 @@
             }
             if(!isSilent) refreshHeroGridState();
             localStorage.setItem('aov_hud_state_v2', JSON.stringify(state));
-            try { await fetch('/set', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state) }); } catch (e) {}
+            try { await fetch(`${API_BASE}/set`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state) }); } catch (e) {}
         }
 
         function getSlotData(id) {
@@ -1318,17 +1445,25 @@
             if(data.globalBanEnabled !== undefined && document.getElementById('global-ban-toggle')) document.getElementById('global-ban-toggle').checked = data.globalBanEnabled;
             currentStep = data.currentStep || 0;
             activeIds = data.activeIds || [];
-            if(data.teamData) teamData = data.teamData;
+            if(data.teamData) {
+                teamData = data.teamData;
+                if(!teamData.t1.color) teamData.t1.color = "#ff5500";
+                if(!teamData.t2.color) teamData.t2.color = "#f3d98b";
+            }
             if(data.hudVisible !== undefined) hudVisible = data.hudVisible;
             if(data.musicPlaying !== undefined) musicPlaying = data.musicPlaying;
+            if(data.musicTriggerTime !== undefined) musicTriggerTime = data.musicTriggerTime;
+            if(data.victoryMusicPlaying !== undefined) victoryMusicPlaying = data.victoryMusicPlaying;
             if(data.camsVisible !== undefined) camsVisible = data.camsVisible;
             if(data.revealState) revealState = data.revealState;
             if(data.playerTuning) playerTuning = data.playerTuning;
             if(data.revealTuning) revealTuning = data.revealTuning;
             if(data.victoryCam) victoryCam = data.victoryCam;
+            if(data.matchResultBanner) matchResultBanner = data.matchResultBanner;
             
             updateCombatUI();
             updateVictoryCamUI();
+            updateMatchResultBannerUI();
             loadPlayerTuning();
             loadPlayerTuningReveal();
             updateOverlayStatusUI();
@@ -1363,6 +1498,9 @@
             teamData.t1.history = [];
             teamData.t2.history = [];
             revealState = { active: false, phase: 'hidden', triggerTime: Date.now() };
+            matchResultBanner = { active: false, winner: 1, triggerTime: 0 };
+            victoryMusicPlaying = false;
+            updateMatchResultBannerUI();
             updateOverlayStatusUI();
             resetDraftInternal();
         }
@@ -1371,8 +1509,8 @@
             if(!confirm("⚠️ XÁC NHẬN QUA TRẬN MỚI (RESET TOÀN BỘ 100%)?\n\nThao tác này sẽ xóa sạch:\n- Tên 2 đội, Logo 2 đội\n- Tên & Ảnh 10 tuyển thủ\n- Tỉ số (về 0 - 0) & Lịch sử tướng Global Ban\n- Toàn bộ tướng Cấm/Chọn hiện tại")) return;
 
             teamData = {
-                t1: { name: "TEAM 1", logo: "", players: ["P1", "P2", "P3", "P4", "P5"], playerPhotos: ["", "", "", "", ""], score: 0, history: [] },
-                t2: { name: "TEAM 2", logo: "", players: ["P1", "P2", "P3", "P4", "P5"], playerPhotos: ["", "", "", "", ""], score: 0, history: [] }
+                t1: { name: "TEAM 1", logo: "", color: "#ff5500", players: ["P1", "P2", "P3", "P4", "P5"], playerPhotos: ["", "", "", "", ""], score: 0, history: [] },
+                t2: { name: "TEAM 2", logo: "", color: "#f3d98b", players: ["P1", "P2", "P3", "P4", "P5"], playerPhotos: ["", "", "", "", ""], score: 0, history: [] }
             };
 
             playerTuning = {};
@@ -1391,7 +1529,10 @@
 
             revealState = { active: false, phase: 'hidden', triggerTime: Date.now() };
             victoryCam = { active: false, team: 1 };
+            matchResultBanner = { active: false, winner: 1, triggerTime: 0 };
+            victoryMusicPlaying = false;
             updateVictoryCamUI();
+            updateMatchResultBannerUI();
             updateOverlayStatusUI();
             loadPlayerTuning();
             loadPlayerTuningReveal();

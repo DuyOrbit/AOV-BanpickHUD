@@ -3,6 +3,10 @@ const fs = require('fs');
 const path = require('path');
 
 const heroes = [
+  {"name": "Evita", "img_url": "https://lienquan.garena.vn/wp-content/uploads/2026/10/200x200.jpeg"},
+  {"name": "Tamyn", "img_url": "https://lienquan.garena.vn/wp-content/uploads/2026/07/SeaTalk_IMG_20260722_163230-1.jpg"},
+  {"name": "Flowborn (Pháp sư)", "img_url": "https://lienquan.garena.vn/wp-content/uploads/2026/04/IMG-SQR-0200x0200-080148-2.jpg"},
+  {"name": "Flowborn (Xạ thủ)", "img_url": "https://lienquan.garena.vn/wp-content/uploads/2026/04/IMG-SQR-0200x0200-080150-ket-thuc.jpg"},
   {"name": "Dyadia", "img_url": "https://lienquan.garena.vn/wp-content/uploads/2026/01/SeaTalk_IMG_20260119_104427.jpg"},
   {"name": "Edras", "img_url": "https://lienquan.garena.vn/wp-content/uploads/2025/10/edrashead-2.jpg"},
   {"name": "Goverra", "img_url": "https://lienquan.garena.vn/wp-content/uploads/2025/07/goverra-1.jpg"},
@@ -134,7 +138,13 @@ const heroes = [
 const download = (url, dest) => {
   return new Promise((resolve, reject) => {
     const file = fs.createWriteStream(dest);
-    https.get(url, (response) => {
+    const options = {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+        'Referer': 'https://lienquan.garena.vn/'
+      }
+    };
+    https.get(url, options, (response) => {
       response.pipe(file);
       file.on('finish', () => {
         file.close(resolve);

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AOV TOURNAMENT HUD - IN-GAME OVERLAY</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* Dedicated In-Game Scene: Always visible so OBS scene switching is instant */
+        #ingame-hud.standalone-scene {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        #ingame-hud.standalone-scene.force-hidden {
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- IN-GAME HUD OVERLAY -->
+    <div id="ingame-hud" class="standalone-scene">
+        <div class="ingame-top">
+            <div class="ig-team-side left">
+                <img class="ig-logo" id="ig-logo-t1">
+                <div class="ig-name" id="ig-name-t1">TEAM 1</div>
+            </div>
+            <div class="ig-score-center">
+                <div class="ig-score-val" id="ig-score-t1">0</div>
+                <div class="ig-score-label" id="ig-match-stage">BEST OF 5</div>
+                <div class="ig-score-val" id="ig-score-t2">0</div>
+            </div>
+            <div class="ig-team-side right">
+                <img class="ig-logo" id="ig-logo-t2">
+                <div class="ig-name" id="ig-name-t2">TEAM 2</div>
+            </div>
+        </div>
+
+        <div class="ig-cam-card left">
+            <div class="ig-player-frame left">
+                <img class="ig-cam-img" id="ig-cam-t1">
+            </div>
+            <div class="ig-cam-label left">
+                <div class="ig-player-name" id="ig-cam-name-t1">PLAYER NAME</div>
+            </div>
+        </div>
+
+        <div class="ig-cam-card right">
+            <div class="ig-player-frame right">
+                <img class="ig-cam-img" id="ig-cam-t2">
+            </div>
+            <div class="ig-cam-label right">
+                <div class="ig-player-name" id="ig-cam-name-t2">PLAYER NAME</div>
+            </div>
+        </div>
+
+        <div class="ingame-bottom">
+            <div class="ig-event-text" id="ig-event-text">ARENA OF GLORY SPRING 2026</div>
+        </div>
+
+        <!-- 5-CAM VICTORY CELEBRATION / PUSH BAR (WHEN A TEAM IS ABOUT TO WIN) -->
+        <div class="ig-victory-bar" id="ig-victory-bar">
+            <div class="victory-wing left">
+                <div class="victory-logo-box">
+                    <img id="victory-team-logo" class="victory-team-logo" alt="Logo">
+                </div>
+                <div class="victory-team-info">
+                    <div class="victory-status-tag" id="victory-status-tag">MATCH POINT MOMENT</div>
+                    <div class="victory-team-name" id="victory-team-name">TEAM 1</div>
+                </div>
+            </div>
+
+            <div class="victory-cams-row" id="victory-cams-row"></div>
+
+            <div class="victory-wing right">
+                <div class="victory-tag-box" id="victory-tag-box">
+                    <span class="victory-accent-tag" id="victory-accent-tag">VICTORY PUSH</span>
+                </div>
+            </div>
+
+            <div class="victory-bottom-ribbon">
+                <span class="victory-event-label" id="victory-event-label">ARENA OF GLORY SPRING 2026</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Support both http://localhost:3000/ingame.html AND OBS "Local File" (file:///.../ingame.html)
+        const API_BASE = (window.location.protocol === 'file:') ? 'http://localhost:3000' : '';
+
+        const DEFAULT_PLAYER_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(`
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 320" width="300" height="320">
+                <defs>
+                    <radialGradient id="bg" cx="50%" cy="40%" r="70%">
+                        <stop offset="0%" stop-color="#1e2638"/>
+                        <stop offset="100%" stop-color="#090c14"/>
+                    </radialGradient>
+                    <linearGradient id="sil" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#3a465e"/>
+                        <stop offset="100%" stop-color="#141923"/>
+                    </linearGradient>
+                </defs>
+                <rect width="300" height="320" fill="url(#bg)"/>
+                <circle cx="150" cy="105" r="46" fill="url(#sil)" stroke="rgba(255,204,0,0.25)" stroke-width="2"/>
+                <path d="M45 310 C45 205 100 175 150 175 C200 175 255 205 255 310 Z" fill="url(#sil)" stroke="rgba(255,204,0,0.25)" stroke-width="2"/>
+                <path d="M115 182 L150 235 L185 182" fill="none" stroke="rgba(255,204,0,0.35)" stroke-width="3"/>
+            </svg>
+        `);
+
+        const DEFAULT_LOGO_BLUE_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(`
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                <polygon points="50,6 90,22 80,74 50,94 20,74 10,22" fill="#0d2240" stroke="#007bff" stroke-width="5"/>
+                <text x="50" y="60" font-family="Arial, sans-serif" font-weight="900" font-size="28" fill="#00a2ff" text-anchor="middle">T1</text>
+            </svg>
+        `);
+
+        const DEFAULT_LOGO_RED_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(`
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                <polygon points="50,6 90,22 80,74 50,94 20,74 10,22" fill="#3a1015" stroke="#ff3e3e" stroke-width="5"/>
+                <text x="50" y="60" font-family="Arial, sans-serif" font-weight="900" font-size="28" fill="#ff5e5e" text-anchor="middle">T2</text>
+            </svg>
+        `);
+
+        let currentPlayerIndex = 0;
+        let lastPlayerRotateTime = Date.now();
+        let victoryCamCache = '';
+
+        async function poll() {
+            let data = null;
+            try {
+                const resp = await fetch(`${API_BASE}/get`, { cache: 'no-store' });
+                if (resp.ok) {
+                    const result = await resp.json();
+                    if (result && result.state && result.state.teamData) {
+                        data = result.state;
+                    }
+                }
+            } catch (e) {}
+
+            if (!data) {
+                try {
+                    const raw = localStorage.getItem('aov_hud_state_v2');
+                    if (raw) data = JSON.parse(raw);
+                } catch (e) {}
+            }
+
+            if (data && data.teamData) {
+                syncIngame(data);
+            }
+
+            if (Date.now() - lastPlayerRotateTime > 10000) {
+                currentPlayerIndex = (currentPlayerIndex + 1) % 5;
+                lastPlayerRotateTime = Date.now();
+            }
+        }
+
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'aov_hud_state_v2' && e.newValue) {
+                try {
+                    const data = JSON.parse(e.newValue);
+                    if (data && data.teamData) syncIngame(data);
+                } catch (err) {}
+            }
+        });
+
+        setInterval(poll, 200);
+        poll();
+
+        function syncIngame(data) {
+            const td = data.teamData;
+            if (!td) return;
+
+            document.getElementById('ig-name-t1').innerText = td.t1.name;
+            document.getElementById('ig-name-t2').innerText = td.t2.name;
+            document.getElementById('ig-logo-t1').src = td.t1.logo || DEFAULT_LOGO_BLUE_SVG;
+            document.getElementById('ig-logo-t2').src = td.t2.logo || DEFAULT_LOGO_RED_SVG;
+            document.getElementById('ig-score-t1').innerText = td.t1.score;
+            document.getElementById('ig-score-t2').innerText = td.t2.score;
+            document.getElementById('ig-match-stage').innerText = data.stage || "BEST OF 5";
+            const eventEl = document.getElementById('ig-event-text');
+            if (eventEl) eventEl.innerText = data.eventTitle || "ARENA OF GLORY SPRING 2026";
+
+            const cams = document.querySelectorAll('.ig-player-frame');
+            cams.forEach(c => { c.classList.toggle('combat-hidden', data.camsVisible === false); });
+
+            const pt = data.playerTuning || {};
+            updateCam(1, td.t1, td.t1.playerPhotos[currentPlayerIndex], pt[`t1_p${currentPlayerIndex}`]);
+            updateCam(2, td.t2, td.t2.playerPhotos[currentPlayerIndex], pt[`t2_p${currentPlayerIndex}`]);
+
+            syncVictoryCams(data);
+        }
+
+        function syncVictoryCams(data) {
+            const bar = document.getElementById('ig-victory-bar');
+            if (!bar) return;
+            const vc = data.victoryCam || { active: false, team: 1 };
+            const isActive = !!vc.active;
+            bar.classList.toggle('active', isActive);
+
+            const cornerCams = document.querySelectorAll('.ig-cam-card');
+            cornerCams.forEach(c => c.classList.toggle('victory-hidden', isActive));
+
+            if (!isActive) return;
+
+            const teamNum = (vc.team === 2 || vc.team === 't2') ? 2 : 1;
+            const teamKey = `t${teamNum}`;
+            const td = data.teamData || {};
+            const team = td[teamKey] || { name: `TEAM ${teamNum}`, players: ["P1","P2","P3","P4","P5"], playerPhotos: ["","","","",""] };
+            const pt = data.playerTuning || {};
+
+            bar.classList.toggle('team-t1', teamNum === 1);
+            bar.classList.toggle('team-t2', teamNum === 2);
+
+            document.getElementById('victory-team-logo').src = team.logo || (teamNum === 1 ? DEFAULT_LOGO_BLUE_SVG : DEFAULT_LOGO_RED_SVG);
+            document.getElementById('victory-team-name').innerText = team.name || `TEAM ${teamNum}`;
+            const eventEl = document.getElementById('victory-event-label');
+            if (eventEl) {
+                eventEl.innerText = data.eventTitle || "ARENA OF GLORY SPRING 2026";
+            }
+
+            const sig = `${teamNum}|${JSON.stringify(team.players)}|${JSON.stringify(team.playerPhotos)}|${JSON.stringify(pt)}`;
+            if (victoryCamCache === sig) return;
+            victoryCamCache = sig;
+
+            const camsRow = document.getElementById('victory-cams-row');
+            camsRow.innerHTML = [0, 1, 2, 3, 4].map(idx => {
+                const pName = (team.players && team.players[idx]) ? team.players[idx] : `PLAYER ${idx + 1}`;
+                const pPhoto = (team.playerPhotos && team.playerPhotos[idx]) ? team.playerPhotos[idx] : DEFAULT_PLAYER_SVG;
+                const tuningKey = `${teamKey}_p${idx}`;
+                const tune = pt[tuningKey] || { zoom: 100, offx: 50, offy: 50 };
+                const imgStyle = `transform: scale(${tune.zoom / 100}); object-position: ${tune.offx}% ${tune.offy}%;`;
+                return `
+                    <div class="victory-cam-slot">
+                        <div class="victory-cam-frame">
+                            <img src="${pPhoto}" class="victory-player-img" style="${imgStyle}">
+                        </div>
+                        <div class="victory-cam-nameplate">
+                            <span>${pName}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateCam(num, team, photo, tuning) {
+            const img = document.getElementById(`ig-cam-t${num}`);
+            const nameEl = document.getElementById(`ig-cam-name-t${num}`);
+            img.src = photo || DEFAULT_PLAYER_SVG;
+            nameEl.innerText = team.players[currentPlayerIndex] || "PLAYER";
+            if (tuning) {
+                img.style.transform = `scale(${tuning.zoom / 100})`;
+                img.style.objectPosition = `${tuning.offx}% ${tuning.offy}%`;
+            } else {
+                img.style.transform = 'scale(1)';
+                img.style.objectPosition = '50% 50%';
+            }
+        }
+    </script>
+</body>
+</html>

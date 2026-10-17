@@ -6,8 +6,8 @@ body {
   font-family: 'Inter', sans-serif;
   background: transparent; /* Essential for OBS Transparency */
   color: #fff;
-  height: 1080px;
-  width: 1920px;
+  height: 100vh;
+  width: 100vw;
   overflow: hidden;
 }
 
@@ -1320,4 +1320,217 @@ img[src=""], img:not([src]) {
     box-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
     z-index: 11;
 }
+
+/* ========================================================================== */
+/* 6. POST-MATCH VICTORY / DEFEAT RESULT BANNER (LOWER THIRD)                 */
+/* ========================================================================== */
+.pm-banner {
+    --pm-color-left: #ff5500;
+    --pm-color-right: #f3d98b;
+    position: absolute;
+    bottom: 42px;
+    left: 50%;
+    width: 1420px;
+    z-index: 1500;
+    pointer-events: none;
+    transform: translate(-50%, 140%);
+    opacity: 0;
+    transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease;
+    filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.92));
+}
+
+.pm-banner.active {
+    transform: translate(-50%, 0);
+    opacity: 1;
+}
+
+/* Upper Victory / Defeat Trapezoid Tabs */
+.pm-tabs-row {
+    width: 100%;
+    height: 44px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    position: relative;
+    z-index: 5;
+}
+
+.pm-tab {
+    width: 265px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+
+.pm-tab.left {
+    clip-path: polygon(22px 0, calc(100% - 22px) 0, 100% 100%, 0 100%);
+}
+
+.pm-tab.right {
+    clip-path: polygon(22px 0, calc(100% - 22px) 0, 100% 100%, 0 100%);
+}
+
+.pm-tab.victory {
+    background: linear-gradient(90deg, #c69a4b 0%, #e5be70 50%, #c89c4d 100%);
+    color: #161822;
+}
+
+.pm-tab.defeat {
+    background: linear-gradient(90deg, #7c8089 0%, #9fa3ac 50%, #7d818a 100%);
+    color: #161822;
+}
+
+/* Main Banner Body */
+.pm-body {
+    width: 100%;
+    height: 176px;
+    background: linear-gradient(180deg, #0b0c18 0%, #070812 55%, #0c0e22 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    box-shadow: inset 0 2px 0 rgba(120, 140, 255, 0.25), inset 0 -2px 0 rgba(70, 95, 220, 0.35);
+}
+
+/* Subtle diagonal tech lines inside the dark navy center */
+.pm-body::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(118deg, transparent 34%, rgba(65, 88, 208, 0.14) 34.2%, rgba(65, 88, 208, 0.03) 38%, transparent 38.2%),
+        linear-gradient(-118deg, transparent 34%, rgba(65, 88, 208, 0.14) 34.2%, rgba(65, 88, 208, 0.03) 38%, transparent 38.2%),
+        radial-gradient(circle at 50% 60%, rgba(58, 92, 255, 0.18) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Left & Right Colored Team Wings with Jagged Inner Edge (exactly like reference image) */
+.pm-team-wing {
+    width: 390px;
+    height: 100%;
+    position: relative;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.pm-team-wing.left {
+    background: var(--pm-color-left, #ff5500);
+    /* Lightning-bolt / stepped angled right edge matching the reference image */
+    clip-path: polygon(0 0, 83% 0, 64% 25%, 76% 25%, 100% 100%, 0 100%);
+    padding-right: 75px;
+}
+
+.pm-team-wing.right {
+    background: var(--pm-color-right, #f3d98b);
+    /* Mirrored lightning-bolt / stepped angled left edge */
+    clip-path: polygon(17% 0, 100% 0, 100% 100%, 0 100%, 24% 25%, 36% 25%);
+    padding-left: 75px;
+}
+
+.pm-team-logo {
+    width: 142px;
+    height: 142px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.28));
+}
+
+/* Center Scoreboard Section */
+.pm-center-board {
+    flex: 1;
+    height: 100%;
+    position: relative;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px 10px 10px;
+}
+
+/* Top Blue/Indigo Trapezoid Ribbon ("GROUP STAGE | 2ND LEG") */
+.pm-stage-ribbon {
+    min-width: 590px;
+    height: 40px;
+    padding: 0 36px;
+    background: linear-gradient(90deg, #4b61d1 0%, #637cf7 50%, #4b61d1 100%);
+    clip-path: polygon(0 0, 100% 0, calc(100% - 22px) 100%, 22px 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+}
+
+.pm-stage-ribbon span {
+    font-size: 23px;
+    font-weight: 900;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+    white-space: nowrap;
+}
+
+/* Large Scores + VS Divider Row */
+.pm-score-row {
+    width: 100%;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 38px;
+    margin-top: 2px;
+}
+
+.pm-score-val {
+    font-size: 92px;
+    font-weight: 950;
+    color: #ffffff;
+    line-height: 1;
+    min-width: 80px;
+    text-align: center;
+    text-shadow: 0 4px 18px rgba(0, 0, 0, 0.9);
+}
+
+.pm-vs-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    width: 310px;
+}
+
+.pm-vs-line {
+    flex: 1;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.55);
+}
+
+.pm-vs-text {
+    font-size: 24px;
+    font-weight: 900;
+    color: #e5be70;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* Bottom Series Subtitle ("ROUND 15 - BO5") */
+.pm-series-sub {
+    font-size: 25px;
+    font-weight: 900;
+    color: #5578f2;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    line-height: 1;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+}
+
 

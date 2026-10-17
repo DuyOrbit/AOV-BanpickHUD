@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AOV TOURNAMENT HUD - POST-MATCH VICTORY / DEFEAT</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- POST-MATCH VICTORY / DEFEAT RESULT BANNER (LOWER THIRD) -->
+    <div id="postmatch-banner" class="pm-banner active">
+        <div class="pm-tabs-row">
+            <div class="pm-tab left victory" id="pm-tab-left">
+                <span id="pm-tab-text-left">Victory</span>
+            </div>
+            <div class="pm-tab right defeat" id="pm-tab-right">
+                <span id="pm-tab-text-right">Defeat</span>
+            </div>
+        </div>
+        <div class="pm-body">
+            <!-- Left Team Wing -->
+            <div class="pm-team-wing left" id="pm-wing-left">
+                <img id="pm-logo-left" class="pm-team-logo" alt="Team 1">
+            </div>
+
+            <!-- Left Notch Cutout -->
+            <div class="pm-notch left" id="pm-notch-left"></div>
+
+            <!-- Center Scoreboard -->
+            <div class="pm-center-board">
+                <div class="pm-stage-ribbon">
+                    <span id="pm-stage-text">GROUP STAGE | 2ND LEG</span>
+                </div>
+                <div class="pm-score-row">
+                    <span class="pm-score-val left" id="pm-score-left">1</span>
+                    <div class="pm-vs-divider">
+                        <span class="pm-vs-line"></span>
+                        <span class="pm-vs-text">VS</span>
+                        <span class="pm-vs-line"></span>
+                    </div>
+                    <span class="pm-score-val right" id="pm-score-right">0</span>
+                </div>
+                <div class="pm-series-sub" id="pm-series-text">ROUND 15 - BO5</div>
+            </div>
+
+            <!-- Right Notch Cutout -->
+            <div class="pm-notch right" id="pm-notch-right"></div>
+
+            <!-- Right Team Wing -->
+            <div class="pm-team-wing right" id="pm-wing-right">
+                <img id="pm-logo-right" class="pm-team-logo" alt="Team 2">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = (window.location.protocol === 'file:') ? 'http://localhost:3000' : '';
+
+        const DEFAULT_LOGO_BLUE_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(`
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                <polygon points="50,6 90,22 80,74 50,94 20,74 10,22" fill="#0d2240" stroke="#007bff" stroke-width="5"/>
+                <text x="50" y="60" font-family="Arial, sans-serif" font-weight="900" font-size="28" fill="#00a2ff" text-anchor="middle">T1</text>
+            </svg>
+        `);
+
+        const DEFAULT_LOGO_RED_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(`
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                <polygon points="50,6 90,22 80,74 50,94 20,74 10,22" fill="#3a1015" stroke="#ff3e3e" stroke-width="5"/>
+                <text x="50" y="60" font-family="Arial, sans-serif" font-weight="900" font-size="28" fill="#ff5e5e" text-anchor="middle">T2</text>
+            </svg>
+        `);
+
+        let victoryBgm = new Audio(encodeURI('music/Nhạc nền kết thúc trận ĐTDV Mùa Xuân 2026 - AOG S26 Post-Match Soundtrack - DECLARE THE NEW ERA.mp3'));
+        victoryBgm.loop = true;
+        let lastVictoryBannerTime = 0;
+        let isMutedManually = false;
+
+        async function poll() {
+            let data = null;
+            try {
+                const resp = await fetch(`${API_BASE}/get`, { cache: 'no-store' });
+                if (resp.ok) {
+                    const result = await resp.json();
+                    if (result && result.state && result.state.teamData) {
+                        data = result.state;
+                    }
+                }
+            } catch (e) {}
+
+            if (!data) {
+                try {
+                    const raw = localStorage.getItem('aov_hud_state_v2');
+                    if (raw) data = JSON.parse(raw);
+                } catch (e) {}
+            }
+
+            if (data && data.teamData) {
+                syncPostMatchBanner(data);
+            }
+        }
+
+        setInterval(poll, 200);
+        poll();
+
+        function syncPostMatchBanner(data) {
+            const banner = document.getElementById('postmatch-banner');
+            if (!banner) return;
+            const mb = data.matchResultBanner || { active: true, winner: 1 };
+            // In standalone postgame.html, keep the banner visible unless explicitly closed via "ĐÓNG BẢNG KQ" (active === false)
+            const isVisible = (data.matchResultBanner && data.matchResultBanner.active === false) ? false : true;
+            banner.classList.toggle('active', isVisible);
+
+            const playVictoryMusic = !!(data.victoryMusicPlaying && !isMutedManually);
+            if (playVictoryMusic) {
+                if (mb.triggerTime && mb.triggerTime !== lastVictoryBannerTime) {
+                    lastVictoryBannerTime = mb.triggerTime;
+                    victoryBgm.currentTime = 0;
+                } else if (victoryBgm.paused) {
+                    victoryBgm.currentTime = 0;
+                }
+                if (victoryBgm.paused) {
+                    victoryBgm.volume = 1;
+                    victoryBgm.play().catch(e => {});
+                }
+            } else {
+                if (!victoryBgm.paused) {
+                    victoryBgm.pause();
+                    victoryBgm.currentTime = 0;
+                }
+            }
+
+            const td = data.teamData || {};
+            const t1 = td.t1 || { name: 'TEAM 1', logo: '', score: 0, color: '#ff5500' };
+            const t2 = td.t2 || { name: 'TEAM 2', logo: '', score: 0, color: '#f3d98b' };
+            const winner = (mb.winner === 2 || mb.winner === 't2') ? 2 : 1;
+
+            const tabLeft = document.getElementById('pm-tab-left');
+            const tabRight = document.getElementById('pm-tab-right');
+            const tabTextLeft = document.getElementById('pm-tab-text-left');
+            const tabTextRight = document.getElementById('pm-tab-text-right');
+
+            if (winner === 1) {
+                tabLeft.className = 'pm-tab left victory';
+                tabTextLeft.innerText = 'Victory';
+                tabRight.className = 'pm-tab right defeat';
+                tabTextRight.innerText = 'Defeat';
+            } else {
+                tabLeft.className = 'pm-tab left defeat';
+                tabTextLeft.innerText = 'Defeat';
+                tabRight.className = 'pm-tab right victory';
+                tabTextRight.innerText = 'Victory';
+            }
+
+            const c1 = t1.color || '#ff5500';
+            const c2 = t2.color || '#f3d98b';
+            banner.style.setProperty('--pm-color-left', c1);
+            banner.style.setProperty('--pm-color-right', c2);
+
+            document.getElementById('pm-logo-left').src = t1.logo || DEFAULT_LOGO_BLUE_SVG;
+            document.getElementById('pm-logo-right').src = t2.logo || DEFAULT_LOGO_RED_SVG;
+            document.getElementById('pm-score-left').innerText = (t1.score !== undefined) ? t1.score : 0;
+            document.getElementById('pm-score-right').innerText = (t2.score !== undefined) ? t2.score : 0;
+
+            const stageStr = (data.stage !== undefined && data.stage.trim() !== '') ? data.stage.trim() : 'GROUP STAGE | 2ND LEG';
+            const seriesStr = (data.seriesType !== undefined && data.seriesType.trim() !== '') ? data.seriesType.trim() : 'ROUND 15 - BO5';
+
+            document.getElementById('pm-stage-text').innerText = stageStr;
+            document.getElementById('pm-series-text').innerText = seriesStr;
+        }
+    </script>
+</body>
+</html>
